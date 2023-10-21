@@ -1,0 +1,102 @@
+- group: 踏入武者
+  list:
+    - icon: help-icon_2
+      title: '(/|#)踏入武者'
+      desc: '踏入武者'
+    - icon: help-icon_2
+      title: '(/|#)改名+名字'
+      desc: '改名'
+    - icon: help-icon_2
+      title: '(/|#)改姓+性别'
+      desc: '改姓'
+    - icon: help-icon_2
+      title: '(/|#)修改宣言+宣言'
+      desc: '修改宣言'
+    - icon: help-icon_2
+      title: '(/|#)设置年龄+年龄'
+      desc: '设置年龄'
+    - icon: help-icon_2
+      title: '(/|#)机器验证+验证码'
+      desc: '机器验证'
+    - icon: help-icon_2
+      title: '(/|#)觉醒灵器'
+      desc: '觉醒灵器'
+    - icon: help-icon_2
+      title: '(/|#)开始打工'
+      desc: '开始打工'
+    - icon: help-icon_2
+      title: '(/|#)结束打工'
+      desc: '结束打工'
+    - icon: help-icon_2
+      title: '(/|#)开始修炼'
+      desc: '开始修炼'
+    - icon: help-icon_2
+      title: '(/|#)结束修炼'
+      desc: '结束修炼'
+    - icon: help-icon_2
+      title: '(/|#)开始锻炼体魄'
+      desc: '开始锻炼体魄'
+    - icon: help-icon_2
+      title: '(/|#)结束锻炼体魄'
+      desc: '结束锻炼体魄'
+    - icon: help-icon_2
+      title: '(/|#)开始修炼灵魂'
+      desc: '开始修炼灵魂'
+    - icon: help-icon_2
+      title: '(/|#)结束修炼灵魂'
+      desc: '结束修炼灵魂'
+    - icon: help-icon_2
+      title: '(/|#)我的灵器'
+      desc: '查看我的灵器'
+    - icon: help-icon_2
+      title: '(/|#)修为突破'
+      desc: '修为突破'
+    - icon: help-icon_2
+      title: '(/|#)体魄突破'
+      desc: '体魄突破'
+    - icon: help-icon_2
+      title: '(/|#)灵魂突破'
+      desc: '灵魂突破'
+    - icon: help-icon_2
+      title: '(/|#)开始猎杀妖兽'
+      desc: '开始猎杀妖兽'
+    - icon: help-icon_2
+      title: '(/|#)结束猎杀妖兽'
+      desc: '结束猎杀妖兽'
+      
+- group: 猎妖
+  list:
+    - icon: help-icon_2
+      title: '(/|#)猎妖信息'
+      desc: '猎妖信息'
+    - icon: help-icon_2
+      title: '(/|#)前往猎妖+妖名'
+      desc: '前往猎妖'
+    - icon: help-icon_2
+      title: '(/|#)结算+结算对象'
+      desc: '结算'
+    - icon: help-icon_2
+      title: '(/|#)妖兽地点'
+      desc: '妖兽地点'
+    - icon: help-icon_2
+      title: '(/|#)探索+妖兽地点名称'
+      desc: '探索'
+    - icon: help-icon_2
+      title: '(/|#)击杀+地点名*妖兽名*数量'
+      desc: '击杀妖兽地点探索出来的妖兽'
+      
+- group: 打劫
+  list:
+    - icon: help-icon_2
+      title: '(/|#)打劫+@qq'
+      desc: '打劫'
+    - icon: help-icon_2
+      title: '(/|#)比斗+@qq'
+      desc: '比斗'
+- group: GM
+  list:
+    - icon: help-icon_2
+      title: '(/|#)武者更新'
+      desc: '武者更新'
+    
+

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <!-- <link rel="stylesheet" type="text/css" href="{{pluResPath}}/html/player/player.css" /> -->
+  <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{pluResPath}}/html/player/player.css"
+    />
+  <!-- <meta charset="UTF-8"> -->
+  <!-- <link rel="shortcut icon" href="#" /> -->
+</head>
+<body>
+  <div>
+    <div class="header"></div>
+    <div class="card_box">
+      <div class="user_top_left">
+        <div class="user_top_img_bottom">
+          <img class="user_top_img" src="https://allapi.mzswebs.top/touxiang.php" onerror="whenError(this)" />
+        </div>
+      </div>
+      <div class="user_top_right">
+        <div class="user_top_font_right">道号：{{name}}</div>
+        <div class="user_top_font_right">id：{{player.id}}</div>
+        <div class="user_top_font_right">性别：{{player.性别}}</div>
+        <div class="user_top_font_right">
+          生命：
+          <div class="blood_box">
+            <div class="blood_bar" {{strand_hp.style}}></div>
+            <div class="blood_volume">
+              {{(player.当前生命).toFixed(0)}}/{{(player.生命上限).toFixed(0)}}
+            </div>
+          </div>
+        </div>
+        <div class="user_top_font_right">金钱：{{player.金钱}}</div>
+        <div class="user_top_font_right">宣言：{{player.宣言}}</div>
+      </div>
+    </div>
+    <div class="card_box">
+      <div class="use_data">
+        <div class="user_font user_font_title">[基础信息]</div>
+        <div class="user_font wupin">
+          <div class="item">
+            <div class="item_title font_left">攻击：{{player.攻击加成}}</div>
+            <div class="item_title font_left">防御：{{player.防御加成}}</div>
+            <div class="item_title font_left">暴伤：{{player.暴伤加成}}</div>
+            <div class="item_title font_left">
+              暴击：{{(player.暴击加成 * 100).toFixed(0)}}%
+            </div>
+          </div>
+          <div class="item">
+            <div class="item_title font_left">生命：{{player.生命加成}}</div>
+            <div class="item_title font_left">闪避：{{player.闪避加成}}</div>
+          </div>
+        </div>
+        <div class="user_font wupin">
+          <div class="item">
+            <div class="item_title font_left">
+              {{rank_wuzhe}}{{if player.灵气 >= expmax_wuzhe}}{{/if}}
+            </div>
+            <div class="item_int">
+              <div class="xuetiao">
+                <div class="xueliang font_volume" {{strand_wuzhe.style}}>
+                  {{strand_wuzhe.num}}%
+                </div>
+              </div>
+            </div>
+            <div class="item_int">{{player.灵气}}/{{expmax_wuzhe}}</div>
+          </div>
+          <div class="item">
+            <div class="item_title font_left">
+              {{rank_tipo}}{{if player.体魄力量 >= expmax_tipo}}[UP]{{/if}}
+            </div>
+            <div class="item_int">
+              <div class="xuetiao">
+                <div class="xueliang font_volume" {{strand_tipo.style}}>
+                  {{strand_tipo.num}}%
+                </div>
+              </div>
+            </div>
+            <div class="item_int">{{player.体魄力量}}/{{expmax_tipo}}</div>
+          </div>
+          <div class="item">
+            <div class="item_title font_left">
+              {{rank_hun}}{{if player.灵魂力量 >= expmax_hun}}{{/if}}
+            </div>
+            <div class="item_int">
+              <div class="xuetiao">
+                <div class="xueliang font_volume" {{strand_hun.style}}>
+                  {{strand_hun.num}}%
+                </div>
+              </div>
+            </div>
+            <div class="item_int">{{player.灵魂力量}}/{{expmax_hun}}</div>
+          </div>
+        </div>
+        <div class="user_font wupin">
+          <div class="item">
+            <div class="item_title font_left">
+              本命灵器：{{player.本命灵器.name}}【{{player.本命灵器.品级}}】<br />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{if equipment.胸甲 !== "无"&&equipment.腿甲 !== "无"&&  equipment.法宝 !== "无"}}
+  <div class="card_box2">
+    <div class="use_data2">
+      <div class="user_font user_font_title">[装备信息]</div>
+      <div class="user_font wupin">
+        {{if equipment.胸甲 !== "无"}}
+        <div class="item">
+          <div class="item_title2">{{equipment.胸甲.name}}</div>
+          {{if equipment.胸甲.攻击>10 || equipment.胸甲.防御>10 || equipment.胸甲.hp>10}}
+          <div class="item_int2">
+            攻击：{{(equipment.胸甲.攻击).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            防御：{{(equipment.胸甲.防御).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            生命：{{(equipment.胸甲.生命).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            闪避：{{(equipment.胸甲.闪避).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            爆伤：{{(equipment.胸甲.爆伤).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            暴击：{{(equipment.胸甲.爆伤 * 100).toFixed(0)}}%
+          </div>
+          {{/if}}
+          {{/if}}
+        </div>
+        {{if equipment.腿甲 !== "无"}}
+        <div class="item">
+          <div class="item_title2">{{equipment.腿甲.name}}</div>
+          {{if equipment.腿甲.攻击>10 || equipment.腿甲.防御>10 || equipment.腿甲.hp>10}}
+          <div class="item_int2">
+            攻击：{{(equipment.腿甲.攻击).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            防御：{{(equipment.腿甲.防御).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            生命：{{(equipment.腿甲.生命).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            闪避：{{(equipment.腿甲.闪避).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            爆伤：{{(equipment.腿甲.爆伤).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            暴击：{{(equipment.腿甲.爆伤 * 100).toFixed(0)}}%
+          </div>
+          {{/if}}
+          {{/if}}
+        </div>
+        {{if equipment.法宝 !== "无"}}
+        <div class="item">
+          <div class="item_title2">{{equipment.法宝.name}}</div>
+          {{if equipment.法宝.攻击>10 || equipment.法宝.防御>10 || equipment.法宝.生命>10}}
+          <div class="item_int2">
+            攻击：{{(equipment.法宝.攻击).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            防御：{{(equipment.法宝.防御).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            生命：{{(equipment.法宝.生命).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            闪避：{{(equipment.法宝.闪避).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            爆伤：{{(equipment.法宝.爆伤).toFixed(0)}}
+          </div>
+          <div class="item_int2">
+            暴击：{{(equipment.法宝.爆伤 * 100).toFixed(0)}}%
+          </div>
+          {{/if}}
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="user_bottom2"></div>
+{{/if}}
+ </body>
+</html>
+  

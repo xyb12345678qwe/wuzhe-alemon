@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武器卡片</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #000000, #434343);
+        }
+
+        .weapon-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+            color: #ffffff;
+            background: linear-gradient(45deg, #1e1e1e, #2b2b2b);
+            transition: transform 0.3s;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-mosaic.png');
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .weapon-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .weapon-card h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .weapon-card h1:hover {
+            transform: scale(1.1);
+        }
+
+        .weapon-card p {
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .weapon-card span {
+            background-color: rgba(255, 255, 255, 0.1); /* 添加背景色 */
+            font-size: 16px; /* 更改字体大小 */
+            font-family: 'Orbitron', sans-serif; /* 更改字体样式 */
+            padding: 2px 4px; /* 添加间距 */
+            border-radius: 3px; /* 圆角 */
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="weapon-card-container" class="weapon-card">
+        <h1><font color={{颜色}}>{{lingqi.name}}</font></h1>
+        <p>品级: <span>{{lingqi.品级}}</span></p>
+        <p>攻击加成: <span>{{lingqi.攻击加成}}</span></p>
+        <p>防御加成: <span>{{lingqi.防御加成}}</span></p>
+        <p>生命加成: <span>{{lingqi.生命加成}}</span></p>
+        <p>闪避加成: <span>{{lingqi.闪避加成}}</span></p>
+        <p>暴击加成: <span>{{lingqi.暴击加成}}</span></p>
+        <p>爆伤加成: <span>{{lingqi.爆伤加成}}</span></p>
+        <p>等级: <span>{{lingqi.等级}}</span></p>
+        <p>exp: <span>{{lingqi.exp}}</span></p>
+    </div>
+</body>
+</html>
