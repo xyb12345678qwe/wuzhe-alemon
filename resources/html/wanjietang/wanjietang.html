@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link rel="shortcut icon" href="#" />
+  <style>
+
+    body {
+      transform: scale(1);
+      width: 100%;
+      text-align: center;
+      background-image: url('../../img/wanjietang/wanjietang.jpg');
+      background-size: 100% auto;
+    }
+
+
+.user_top {
+  width: 90%;
+  margin: auto;
+}
+
+.number {
+  font-size: 25px;
+  float: right;
+  font-weight: 500;
+  padding-right: 20px;
+}
+.user_top_left {
+  float: left;
+  width: 30%;
+  padding-top: 21px;
+  margin-top: 50px;
+}
+
+.user_top_img_bottom {
+  margin: auto;
+  background-image: url('../../img/state/user_state.png');
+  background-size: 100% auto;
+  width: 280px;
+  height: 280px;
+}
+
+.user_top_img {
+  margin-top: 52px;
+  margin-left: 2px;
+  width: 172px;
+  height: 172px;
+  border-radius: 100px;
+}
+
+.user_top_left_qq {
+  background-color: rgba(19, 21, 22, 0.486);
+  border-radius: 20px;
+  color: azure;
+  margin-left: 13px;
+  width: 240px;
+  height: 40px;
+  padding: 5px;
+  font-size: 30px;
+}
+
+.user_top_right {
+  float: right;
+  text-align: left;
+  margin-top: 65px;
+  width: 60%;
+  background-image: radial-gradient(
+    rgba(206, 226, 226, 0.078),
+    rgba(164, 193, 231, 0.408)
+  );
+  border-radius: 20px;
+}
+
+.user_bottom0 {
+  padding-top: 80px;
+  padding-bottom: 20px;
+  border-radius: 20px;
+  width: 90%;
+  height: 370px;
+  margin: auto;
+}
+
+.user_bottom1 {
+  border-radius: 20px;
+  width: 90%;
+  margin: auto;
+  background-image: radial-gradient(
+    rgba(206, 226, 226, 0.078),
+    rgba(164, 193, 231, 0.408)
+  );
+}
+
+.user_bottom2 {
+  border-radius: 20px;
+  width: 90%;
+  margin: auto;
+  height: 20px;
+}
+
+.use_data {
+  margin: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.user_font {
+  text-align: left;
+  margin: 0px;
+  font-size: 30px;
+  padding: 15px;
+  font-weight: 600;
+  color: rgb(255, 255, 255);
+  border-top: 1px solid rgba(19, 21, 22, 0.888);
+}
+
+.use_data_head {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  background-color: rgba(19, 21, 22, 0.666);
+}
+.use_data_body {
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background-color: rgba(19, 21, 22, 0.486);
+}
+
+.info {
+  font-size: 28px;
+  font-weight: 500;
+  display: inline-block;
+  padding-left: 20px;
+}
+.price {
+  font-size: 25px;
+  float: right;
+  font-weight: 500;
+  padding-right: 20px;
+}
+.user_font0 {
+  text-align: left;
+  margin: 9px;
+  font-size: 30px;
+  padding: 15px;
+  font-weight: 600;
+  color: rgb(255, 255, 255);
+  border-radius: 20px;
+  background-color: rgba(19, 21, 22, 0.486);
+}
+
+  </style>
+</head>
+<body>
+  <div class="user_bottom1">
+    <div class="use_data">
+      <div class="user_font use_data_head">
+        <div>万界堂</div>
+        <div style="font-size: 0.8em">购买指令：#购买+万界堂*物品名</div>
+      </div>
+      <div class="use_data_body">
+        {{each x item}}
+        <div class="user_font">
+          <div class="item-card">
+            <div class="item-image"></div>
+            <div>{{item.name}}</div>
+            <div class="price">{{item.价格 * 1.2}}元</div>
+            {{if item.type === '道具'}}
+            <div class="info">介绍：{{item.介绍}}</div>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

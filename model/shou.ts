@@ -29,5 +29,8 @@ export default class Game extends base {
   async get_jisha(myData:any) {
     return this.getScreenData('jisha', myData);
   }
+  async get_wanjietang(myData:any) {
+    return this.getScreenData('wanjietang', myData);
+  }
 
 }

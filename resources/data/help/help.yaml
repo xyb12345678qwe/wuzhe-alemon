@@ -93,10 +93,35 @@
     - icon: help-icon_2
       title: '(/|#)比斗+@qq'
       desc: '比斗'
+- group: 治疗
+  list:
+    - icon: help-icon_2
+      title: '(/|#)治疗伤势'
+      desc: '治疗伤势'
+- group: 万界堂
+  list:
+    - icon: help-icon_2
+      title: '(/|#)万界堂'
+      desc: '万界堂'
+- group: 统计
+  list:
+    - icon: help-icon_2
+      title: '(/|#)武者统计'
+      desc: '查看统计'
+    - icon: help-icon_2
+      title: '(/|#)刷新统计'
+      desc: '刷新统计'
+   
 - group: GM
   list:
     - icon: help-icon_2
+      title: 'GM功能只能主人使用'
+      desc: 'GM功能只能主人使用'
+    - icon: help-icon_2
       title: '(/|#)武者更新'
       desc: '武者更新'
+    - icon: help-icon_2
+      title: '(/|#)武者同步'
+      desc: '同步存档内容'
     
 

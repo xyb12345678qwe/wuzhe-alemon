@@ -1164,6 +1164,7 @@ class start extends plugin {
         return false;
     }
     async bt(e) {
+
         const usr_qq = e.user_id;
         if (await existplayer(1, usr_qq, 'player')) {
             return e.reply(`已有存档`);

@@ -1,6 +1,7 @@
 import { existplayer,Read_player,Write_player,Write_playerData,getlingqi ,findIndexByName,Strand,_item,pic,Read_yaml} from "../../model/wuzhe";
 import {plugin,AMessage,Show,puppeteer,Help} from '../../app-config'
 import md5 from 'md5';
+import { analysis } from "alemonjs/types";
 interface HelpData {
   md5: string;
   img: string | Buffer | undefined | false;
@@ -10,6 +11,9 @@ const helpData: HelpData = {
   md5: '',
   img: undefined,
 };
+
+let 性别 = "x";
+let 名字 = "1"
 export class start extends plugin {
 	constructor() {
 		super({
@@ -21,8 +25,12 @@ export class start extends plugin {
 			/** 优先级，数字越小等级越高 */
 			priority: 600,
 			rule: [
-        {
+         {
 			reg: /^(#|\/)踏入武者$/,
+			fnc: 'start',
+		},
+        {
+			reg: /^(#|\/)备用踏入武者$/,
 			fnc: 'bt',
 		},
         {
@@ -64,6 +72,85 @@ export class start extends plugin {
 			],
 		});
 	}
+  async start(e: AMessage): Promise<boolean>{
+    const usr_qq =e.user_id;
+    if (await existplayer(1, usr_qq, 'player')) return this.information(e);
+    e.reply(`请输入你的性别`);
+    this.setContext('1')
+    return false;
+  }
+  async 1(e: AMessage): Promise<boolean>{
+    if(this.e.msg =="男") 性别 ="男"
+    else if(this.e.msg =="女")性别 ="女"
+    else {
+      e.reply(`性别错误自动选择男`)
+      性别 ="男"
+    } 
+    this.finish('1')
+    this.setContext('2')
+    e.reply(`请输入你的名字`)
+    return false;
+  }
+  async 2(e: AMessage): Promise<boolean>{
+    const usr_qq = e.user_id;
+    let new_player:any={
+      id:usr_qq,
+      name:名字,
+      性别:"无",
+      宣言:"无",
+      年龄:0,
+      语言包:"无",
+      武者境界: "F阶低级武者",
+	    体魄境界: "体魄一重天",
+	    灵魂境界: "灵魂境界一重天",
+      灵气:0,
+      体魄力量:0,
+      灵魂力量:0,
+      攻击加成:100,
+      防御加成:100,
+      暴击加成:0.01,
+      爆伤加成:0.01,
+      生命加成:100,
+      闪避加成:0,
+      当前生命:1000,
+      生命上限:1000,
+      金钱:1000,
+      本命灵器:"无",
+      机器验证:[]
+
+    }
+    let new_bag:any={
+      道具:[],
+      功法:[]
+    }
+    let new_equiment:any={
+      武器:"无",
+      胸甲:"无",
+      腿甲:"无",
+      法宝:"无",
+    }
+    let new_status:any={
+      打工:0,
+      "修炼": 0,
+	    "锻炼": 0,
+	    "修炼灵魂": 0,
+      "猎杀妖兽":0,
+      "猎妖":0
+    }
+    this.finish('2')
+    e.reply(`开始觉醒灵器`)
+    new_player.本命灵器= await getlingqi(e)
+    if(new_player.本命灵器){
+    new_player.攻击加成+= new_player.本命灵器.攻击加成
+    new_player.防御加成+= new_player.本命灵器.防御加成
+    new_player.暴击加成+= new_player.本命灵器.暴击加成
+    new_player.爆伤加成+= new_player.本命灵器.爆伤加成
+    new_player.生命加成+= new_player.本命灵器.生命加成
+    new_player.闪避加成+= new_player.本命灵器.闪避加成
+    }
+    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无")
+    return false;
+  }
   async xuan(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
     if (!await existplayer(1, usr_qq, 'player')) return false;
@@ -114,9 +201,9 @@ export class start extends plugin {
   }
   async bt(e:AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (await existplayer(1, usr_qq, 'player')) {return e.reply(`已有存档`)}
+    if (await existplayer(1, usr_qq, 'player')) {return this.information(e)}
     let new_player={
-      id:usr_qq,
+      id:"usr_qq",
       name:"无名氏",
       性别:"无",
       宣言:"无",
@@ -159,7 +246,8 @@ export class start extends plugin {
       "猎杀妖兽":0,
       "猎妖":0
     }
-    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无")
+    new_player.id = usr_qq;
+    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无");
     return e.reply(`创建成功，请使用别的指令完善存档`);
   }
   async j(e:AMessage): Promise<boolean>{
@@ -269,12 +357,12 @@ export class start extends plugin {
     if(x === "中级灵器")颜色 = "#039BE5"
     if(x === "高级灵器")颜色 ="#8E24AA"
     if(x === "帝器")颜色 ="#FFD700"
-        let get_data = {
-            weaponData: player.本命灵器,
-            player,
-            lingqi,
-            颜色
-        }
+    let get_data = {
+     weaponData: player.本命灵器,
+     player,
+     lingqi,
+     颜色
+     }
         await pic(e, get_data, `get_lingqi`); //导入到html
         return;
   }   

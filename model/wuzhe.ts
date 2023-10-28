@@ -577,6 +577,7 @@ export async function getCurrentTime(startTime: number, elapsedTime: number): Pr
   const current = new Date(start.getTime() + elapsed);
   return start.getTime() >= current.getTime();
 }
+//获取所有玩家文件夹名
 export async function getAllSubdirectories() {
   try {
     const subdirectories = fs.readdirSync(__PATH.player) // 读取目录下的所有文件和文件夹
@@ -587,6 +588,7 @@ export async function getAllSubdirectories() {
     return [];
   }
 }
+//读取列表
 export async function _item(num:number, path1: string) {
     console.log(item[num]);
     console.log(num);
@@ -602,4 +604,14 @@ export async function _item(num:number, path1: string) {
     console.error(err);
     throw err;
     }
+}
+//提取数组属性万界堂是否为1
+export async function extractAttributesWithPropertyOne(dataArray:any) {
+  const result:string[] = [];
+  for (const item of dataArray) {
+    if (item.hasOwnProperty('万界堂') && item['万界堂'] === 1) {
+      result.push(item);
+    }
+  }
+  return result;
 }
