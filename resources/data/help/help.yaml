@@ -1,6 +1,18 @@
 - group: 踏入武者
   list:
     - icon: help-icon_2
+      title: '(/|#)查看本平台id'
+      desc: '查看本平台id'
+    - icon: help-icon_2
+      title: '(/|#)踏入武者'
+      desc: '踏入武者'
+    - icon: help-icon_2
+      title: '(/|#)添加账号绑定id+对方id'
+      desc: '添加账号绑定id,这样别人可以使用你的账号'
+    - icon: help-icon_2
+      title: '(/|#)解除账号绑定id+对方id'
+      desc: '解除账号绑定id'
+    - icon: help-icon_2
       title: '(/|#)踏入武者'
       desc: '踏入武者'
     - icon: help-icon_2
@@ -66,6 +78,9 @@
       
 - group: 猎妖
   list:
+    - icon: help-icon_2
+      title: '(/|#)可结算信息'
+      desc: '可结算信息'
     - icon: help-icon_2
       title: '(/|#)猎妖信息'
       desc: '猎妖信息'

@@ -1,11 +1,11 @@
 import { existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,getAllSubdirectories} from "../../model/wuzhe.js";
 import { Show,plugin,AMessage } from "../../app-config.js";
-export class dajie extends plugin {
+export class tongbu extends plugin {
 	constructor() {
 		super({
 			/** 功能名称 */
-			name: 'dajie',
+			name: 'tongbu',
 			/** 功能描述 */
 			dsc: '基础模块',
 			event: 'message',

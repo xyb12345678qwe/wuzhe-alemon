@@ -1,21 +1,28 @@
-import { AppName } from '../app-config.js';
+import { AppName} from '../app-config.js';
 import yaml from 'js-yaml';
 import fs from 'fs'
 import {plugin,AMessage,Show,puppeteer} from '../app-config'
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
-//插件根目录
-// const __dirname = path.resolve() + path.sep + 'plugins' + path.sep + AppName;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-// 文件存放路径
-// console.log(__dirname);
+const apiUrl = 'http://wz-api.mzswebs.top'
+import axios from 'axios'
+import { getAppPath } from 'alemonjs'
 
-export const __PATH = {
-    player: path.join(__dirname, '/resources/data/player'),
-    help: path.join(__dirname, '/resources/data/help/help.yaml'),
-    list: path.join(__dirname,'/resources/data/item')
-};
+//插件根目录
+// const DirPath = path.resolve() +  path.sep + AppName;
+export const DirPath= getAppPath(import.meta.url)
+ console.log(DirPath);
+ const baseDir = new URL('.', import.meta.url).pathname;
+
+ export const __PATH = {
+   player: path.join(baseDir, 'resources', 'data', 'player'), // 相对路径
+   help: path.join(baseDir, 'resources', 'data', 'help', 'help.yaml'), // 相对路径
+   list: path.join(baseDir, 'resources', 'data', 'item'), // 相对路径
+   playerjson: path.join(baseDir, 'resources', 'data', 'player.json') // 相对路径
+ };
+ 
+console.log(__PATH.player);
+console.log(__PATH.list);
 // console.log(__PATH.player);
 let yamltype ={
  "1":__PATH.help,
@@ -25,7 +32,7 @@ let type ={
       "1":__PATH.player,
 }
 let jsontype={
-     
+     "1":__PATH.playerjson
 }
 let item ={
     "1":__PATH.list
@@ -43,8 +50,10 @@ export async function Add_生命(usr_qq: string, num: number) {
  * @returns 
  */
 export async function existplayer(num: number, usr_qq:String,string:String) {
-    const filePath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
-    return fs.existsSync(filePath);
+  const json = await Read_json_path(`/resources/data/player.json`);
+  return json.some(item => item.绑定账号.includes(usr_qq));
+    // const filePath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
+    // return fs.existsSync(filePath);
   }  
   /**
  *
@@ -52,8 +61,11 @@ export async function existplayer(num: number, usr_qq:String,string:String) {
  * @param string [player,equipment,bag,status]
  * @returns 
  */
-  export async function Read_player(num:number, usr_qq: String,string: String) {
-    const playerPath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
+  export async function Read_player(num:number, usr_qq: string,string: string) {
+    // const json = await Read_json_path(`/resources/data/player.json`);
+    // let list = json.find(item => item.绑定账号.includes(usr_qq));
+    let list = await getidlist(usr_qq)
+    const playerPath = `${type[num]}/${list.id}/${list.id}-${string}.json`;
     const dir = path.join(playerPath);
     try {
       const playerData = fs.readFileSync(dir, 'utf8');
@@ -64,9 +76,13 @@ export async function existplayer(num: number, usr_qq:String,string:String) {
       return 'error';
     }
   }
+  export async function getidlist(usr_qq: string){
+    const json = await Read_json_path(`/resources/data/player.json`);
+    return json.find(item => item.绑定账号.includes(usr_qq));
+  }
   /**
  *
- * @param num [1:曹魏 2:东吴 3:蜀汉]
+ * @param num [1:player.json]
  * @returns 
  */
   export async function Read_json(num:number) {
@@ -89,26 +105,24 @@ export async function existplayer(num: number, usr_qq:String,string:String) {
  */
   
 export async function Write_player(num: number, usr_qq: string, player: any, string: string) {
-    const dir = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
-    const dir2 = `${type[num]}/${usr_qq}`;
-    const newJson = JSON.stringify(player, null, '\t');
-    try {
-        // 检查目录是否存在，如果不存在则创建目录
-        try {
-            fs.accessSync(dir2);
-        } catch (err) {
-            if (err.code === 'ENOENT') {
-                fs.mkdirSync(dir2, { recursive: true });
-            } else {
-                throw err;
-            }
-        }
-        // 写入文件
-        fs.writeFileSync(dir, newJson, 'utf8');
-        console.log('写入成功');
-    } catch (err) {
-        console.log('写入失败', err);
+  const json = await Read_json_path(`/resources/data/player.json`);
+  const list = json.find(item => item.绑定账号.includes(usr_qq));
+  console.log(json);
+  const dir = `${type[num]}/${list.id}/${list.id}-${string}.json`;
+  const dir2 = `${type[num]}/${list.id}`;
+  const newJson = JSON.stringify(player, null, '\t');
+  try {
+    // 检查目录是否存在，如果不存在则创建目录
+    if (!fs.existsSync(dir2)) {
+      fs.mkdirSync(dir2, { recursive: true });
     }
+  
+    // 写入文件
+    fs.writeFileSync(dir, newJson, 'utf8');
+    console.log('写入成功');
+  } catch (err) {
+    console.log('写入失败', err);
+  }
 }
 export async function Write_list(list:String,string:String){
   const dir = `${__PATH.list}/${string}.json`
@@ -590,14 +604,9 @@ export async function getAllSubdirectories() {
 }
 //读取列表
 export async function _item(num:number, path1: string) {
-    console.log(item[num]);
-    console.log(num);
-    console.log(path1);
-    
-    
     const playerPath = `${item[num]}/${path1}.json` ;
     try {
-    const data = await fs.promises.readFile(playerPath, 'utf-8');
+    const data = await fs.readFileSync(playerPath, 'utf-8');
     const parsedData = JSON.parse(data);
     return parsedData;
     } catch (err) {
@@ -614,4 +623,71 @@ export async function extractAttributesWithPropertyOne(dataArray:any) {
     }
   }
   return result;
+}
+export async function Read_player2(num,usr_qq,string){
+  const playerPath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
+  const dir = path.join(playerPath);
+  try {
+    const playerData = fs.readFileSync(dir, 'utf8');
+    const player = JSON.parse(playerData);
+    return player;                
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
+}
+export async function generateUID(e: AMessage): Promise<string> {
+  const users = await getAllSubdirectories();
+  let counter = 0;
+  const timestamp: number = new Date().getTime();
+  let uid: string;
+  while (true) {
+    uid = generateRandomUID(11);
+    let isDuplicate = false;
+    for (const user of users) {
+      const player = await Read_player2(1, user, "player");
+      if (player.id === uid) {
+        isDuplicate = true;
+        break;
+      }
+    }
+    if (!isDuplicate) {
+      break;
+    }
+    // 避免死循环,如果已经遍历了所有用户仍无法生成唯一的UID,则抛出错误
+    if (counter === 9999) console.log("无法生成唯一的UID");
+    counter++;
+  }
+  return uid;
+}
+
+export function generateRandomUID(length: number){
+  let uid = "";
+  for (let i = 0; i < length; i++) {
+    uid += Math.floor(Math.random() * 10);
+  }
+  return uid;
+}
+export async function Write_json_path(path1:string,json:String) {
+  const dir = path.join(DirPath,path1);
+  console.log(dir); 
+  const newJson = JSON.stringify(json, null, '\t');
+  try {
+      fs.writeFileSync(dir, newJson, 'utf8');
+      console.log('写入成功');
+  } catch (err) {
+      console.log('写入失败', err);
+  }
+}
+export async function Read_json_path(path1:string) {
+  const dir = path.join(DirPath,path1);
+  console.log(dir);
+  try {
+    const playerData = fs.readFileSync(dir, 'utf8');
+    const player = JSON.parse(playerData);
+    return player;
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }

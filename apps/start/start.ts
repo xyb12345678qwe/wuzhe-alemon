@@ -1,15 +1,16 @@
-import { existplayer,Read_player,Write_player,Write_playerData,getlingqi ,findIndexByName,Strand,_item,pic,Read_yaml} from "../../model/wuzhe";
+
+  import { existplayer,Read_player,Write_player,Write_playerData,getlingqi ,findIndexByName,Strand,_item,pic,Read_yaml,generateUID,Read_json_path,Write_json_path ,Write_json,getidlist} from "../../model/wuzhe";
 import {plugin,AMessage,Show,puppeteer,Help} from '../../app-config'
 import md5 from 'md5';
-import { analysis } from "alemonjs/types";
+import { get } from "http";
 interface HelpData {
   md5: string;
-  img: string | Buffer | undefined | false;
+  img: Buffer | undefined |string |false ;
 }
 
-const helpData: HelpData = {
+const helpData:HelpData = {
   md5: '',
-  img: undefined,
+  img: undefined
 };
 
 let 性别 = "x";
@@ -25,30 +26,42 @@ export class start extends plugin {
 			/** 优先级，数字越小等级越高 */
 			priority: 600,
 			rule: [
+        {
+			    reg: /^(#|\/)解除账号绑定id.*$/,
+			    fnc: 'jianid',
+		    },
          {
-			reg: /^(#|\/)踏入武者$/,
-			fnc: 'start',
-		},
+			    reg: /^(#|\/)添加账号绑定id.*$/,
+			    fnc: 'addid',
+		    },
         {
-			reg: /^(#|\/)备用踏入武者$/,
-			fnc: 'bt',
-		},
+			    reg: /^(#|\/)查看本平台id$/,
+			    fnc: 'id',
+		    },
+         {
+			    reg: /^(#|\/)踏入武者$/,
+			    fnc: 'start',
+		    },
         {
-			reg: /^(#|\/)改名.*$/,
-			fnc: 'gm',
-		},
+			    reg: /^(#|\/)备用踏入武者$/,
+			    fnc: 'bt',
+		    },
         {
-			reg: /^(#|\/)改姓.*$/,
-			fnc: 'gx',
-		},
+			    reg: /^(#|\/)改名.*$/,
+			    fnc: 'gm',
+		    },
         {
-			reg: /^(#|\/)觉醒灵器.*$/,
-			fnc: 'j',
-		},
+			    reg: /^(#|\/)改姓.*$/,
+			    fnc: 'gx',
+		    },
         {
-			reg: /^(#|\/)个人信息.*$/,
-			fnc: 'information',
-		},
+		    	reg: /^(#|\/)觉醒灵器.*$/,
+		    	fnc: 'j',
+	    	},
+        {
+		    	reg: /^(#|\/)个人信息.*$/,
+	    		fnc: 'information',
+	    	},
         {
           reg: /^(#|\/)武者帮助$/,
           fnc: 'help',
@@ -72,6 +85,32 @@ export class start extends plugin {
 			],
 		});
 	}
+  async jianid(e: AMessage): Promise<boolean>{
+    const usr_qq =e.user_id;
+    if (!await existplayer(1, usr_qq, 'player')) return false;
+    const name = e.msg.replace(/(\/|#)解除账号绑定id/, "").trim();
+    const json = await Read_json_path(`/resources/data/player.json`);
+    const list = json.find(item => item.绑定账号.includes(usr_qq));
+    if(!list.绑定账号.includes(name))return e.reply(`无此id`)
+    list.绑定账号[name] =''
+    await Write_json_path(`/resources/data/player.json`,json)
+    return true
+  }
+  async addid(e: AMessage): Promise<boolean>{
+    const usr_qq =e.user_id;
+    if (!await existplayer(1, usr_qq, 'player')) return false;
+    const name = e.msg.replace(/(\/|#)添加账号绑定id/, "").trim();
+    const json = await Read_json_path(`/resources/data/player.json`);
+    const list = json.find(item => item.绑定账号.includes(usr_qq));
+    if(list.绑定账号.includes(usr_qq))return e.reply(`已有此id`)
+    if(json.find(item => item.绑定账号.includes(name))) return e.reply(`对方已有账号`)
+    list.绑定账号.push(name)
+    await Write_json_path(`/resources/data/player.json`,json)
+    return true
+  }
+  async id(e: AMessage): Promise<boolean>{
+    return e.reply(e.user_id)
+  }
   async start(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
     if (await existplayer(1, usr_qq, 'player')) return this.information(e);
@@ -93,8 +132,9 @@ export class start extends plugin {
   }
   async 2(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
+    
     let new_player:any={
-      id:usr_qq,
+      id:await generateUID(e),
       name:名字,
       性别:"无",
       宣言:"无",
@@ -137,7 +177,7 @@ export class start extends plugin {
       "猎杀妖兽":0,
       "猎妖":0
     }
-    this.finish('2')
+    
     e.reply(`开始觉醒灵器`)
     new_player.本命灵器= await getlingqi(e)
     if(new_player.本命灵器){
@@ -148,7 +188,17 @@ export class start extends plugin {
     new_player.生命加成+= new_player.本命灵器.生命加成
     new_player.闪避加成+= new_player.本命灵器.闪避加成
     }
-    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无")
+    const json = await Read_json_path(`/resources/data/player.json`);
+    let list ={
+      id:new_player.id,
+      绑定账号:[usr_qq],
+    }
+    console.log(list);
+    console.log(json);
+    json.push(list)
+    await Write_json_path(`/resources/data/player.json`,json)
+    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无");
+    this.finish('2')
     return false;
   }
   async xuan(e: AMessage): Promise<boolean>{
@@ -288,7 +338,7 @@ export class start extends plugin {
     return e.reply(`修改成功`)
   }
   async information(e: AMessage): Promise<boolean>{
-    const usr_qq: String = e.user_id;
+    const usr_qq: string = e.user_id;
     if (!(await existplayer(1, usr_qq, 'player'))) return false;
 
     let player:any = await Read_player(1, usr_qq, "player");
