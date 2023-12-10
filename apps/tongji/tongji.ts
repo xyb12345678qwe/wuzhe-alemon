@@ -1,9 +1,5 @@
-import { plugin, AMessage, getPluginHelp } from 'alemonjs'
-import { AppName, DirPath } from '../../app-config'
-import fs from 'fs'
-import axios from 'axios'
-import fetch from 'node-fetch';
-const apiUrl = 'http://tj.mzswebs.top';
+import {plugin, AMessage, AppName, DirPath,fs,axios,apiUrl} from '../../api'
+
 export class wuzhe_tongji extends plugin {
   constructor() {
     super({

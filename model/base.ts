@@ -1,4 +1,4 @@
-import { AppName,DirPath } from '../app-config.js';
+import { AppName,DirPath } from '../api';
 
 class Base {
   e: any;
@@ -22,7 +22,6 @@ class Base {
    * @param type 路径类型
    */
   constructPath(type: string): string {
-    // return `${this._path}/application/${DirPath}/resources/${type}`;
     return `${DirPath}/resources/${type}`;
   }
 

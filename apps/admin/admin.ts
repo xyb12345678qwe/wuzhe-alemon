@@ -1,8 +1,6 @@
-import { AppName } from '../../app-config.js'
+import { plugin,AMessage,Show,puppeteer,base,AppName, DirPath } from '../../api'
 import { exec } from 'child_process'
-import {plugin,AMessage,Show,puppeteer,Help,DirPath} from '../../app-config'
-// console.log(`${process.cwd()}/application/${AppName}/`);
-// console.log(DirPath);
+
 export class admin extends plugin {
   constructor() {
     super({
@@ -12,7 +10,7 @@ export class admin extends plugin {
       priority: 400,
       rule: [
         {
-          reg: '^(#|/)武者更新',
+          reg: /^(#|\/)?武者更新$/,
           fnc: 'checkout'
         }
       ]
@@ -23,18 +21,10 @@ export class admin extends plugin {
     if (!e.isMaster) return false
     exec(
       'git  pull',
-    //   { cwd: `${process.cwd()}/application/${AppName}/` },
     { cwd: `${DirPath}/` },
       function (error, stdout, stderr) {
-        if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) {
-          e.reply('目前已经是最新版武者文游了~')
-          return false
-        }
-        if (error) {
-          e.reply('武者文游更新失败！\nError code: ' +error.code + '\n' +error.stack +'\n 请稍后重试。'
-          )
-          return false
-        }
+        if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) return e.reply('目前已经是最新版武者文游了~');
+        if (error) return e.reply('武者文游更新失败！\nError code: ' +error.code + '\n' +error.stack +'\n 请稍后重试。');
         e.reply('更新成功,请[#重启]')
       }
     )

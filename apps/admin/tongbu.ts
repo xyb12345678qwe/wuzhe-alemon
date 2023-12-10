@@ -1,6 +1,7 @@
+import { Show,plugin,AMessage,base } from "../../api";
 import { existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,getAllSubdirectories} from "../../model/wuzhe.js";
-import { Show,plugin,AMessage } from "../../app-config.js";
+
 export class tongbu extends plugin {
 	constructor() {
 		super({
@@ -13,7 +14,7 @@ export class tongbu extends plugin {
 			priority: 600,
 			rule: [
 				{
-					reg: /^(#|\/)武者同步$/,
+					reg: /^(#|\/)?武者同步$/,
 					fnc: 'tongbu',
                 },
 			],
@@ -23,12 +24,12 @@ export class tongbu extends plugin {
         if (!e.isMaster) return false
         let usr_qq = await getAllSubdirectories();
         let results = await Promise.all(usr_qq.map(async (directory) => {
-        let player = await Read_player(1, directory, "player");
+        let player = await Read_player(1,true, directory, "player");
         let ziduan = ["性别"];
         ziduan.forEach((k) => {
             if (!player[k]) player[k] = "无";
         })
-        await Write_player(1,directory,player,"player")
+        await Write_player(1,true,directory,player,"player")
     }))
     return false;
 }

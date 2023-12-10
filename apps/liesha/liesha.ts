@@ -1,6 +1,5 @@
-import { existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item} from "../../model/wuzhe.js";
-import {plugin,AMessage } from '../../app-config.js'
+import {plugin,AMessage ,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item, Read_json, getUserStatus, Read_playerData, getString2, oImages} from '../../api'
 export class liesha extends plugin {
 	constructor() {
 		super({
@@ -13,42 +12,39 @@ export class liesha extends plugin {
 			priority: 600,
 			rule: [
 				{
-					reg: /^(#|\/)猎妖信息$/,
+					reg: /^(#|\/)?猎妖信息$/,
 					fnc: 'x',
                 },
                 {
-					reg: /^(#|\/)前往猎妖.*$/,
+					reg: /^(#|\/)?前往猎妖.*$/,
 					fnc: 'qw',
                 },
                 {
-					reg: /^(#|\/)结算.*$/,
+					reg: /^(#|\/)?状态结算$/,
 					fnc: 'xx',
-                },
-                {
-					reg: /^(#|\/)可结算信息.*$/,
-					fnc: 'xxx',
                 },
 			],
 		});
 	}
-    async xxx(e:AMessage):Promise<boolean>{
-        return e.reply(`1.猎妖`)
-    }
     async x(e:AMessage):Promise<boolean>{
-        let x = await _item(1,'猎杀妖兽地点')
+        let x = await Read_json(4,'/猎杀妖兽地点.json')
+        console.log(x);
         let get_data={x}
-        await pic(e,get_data,`get_lieyao`)
+        const img = await oImages(`/resources/html/lieyao/lieyao.html`,get_data)
+        if(img) e.reply(img)
+        // await pic(e,get_data,`get_lieyao`)
         return false;
     }
     async qw(e:AMessage):Promise<boolean>{
         const usr_qq = e.user_id;
         if (!await existplayer(1, usr_qq, 'player')) return false;
+        let results = await Read_playerData(usr_qq,true,false,false,true,true,'/猎杀妖兽地点.json')
         const name = e.msg.replace(/(\/|#)前往猎妖/, "").trim();
-        let status = await Read_player(1,usr_qq,"status");
-        let player = await Read_player(1,usr_qq,"player");
+        let status = results.status;
+        let player = results.player;
         const xxx = await getNonZeroKeys(status);
-        if(xxx!== false)return e.reply(`你正在${xxx}中`);
-        let x = await _item(1,'猎杀妖兽地点')
+        if(xxx)return e.reply(`你正在${xxx}中`);
+        let x = results[`/猎杀妖兽地点.json`]
         x =x.find(item => item.name === name);
         if(!x)return e.reply(`没有这个妖兽`);
         if(await getstring(player.武者境界,"F阶")) return e.reply(`才f阶就来猎杀妖兽？`);
@@ -56,63 +52,152 @@ export class liesha extends plugin {
         const now = Date.now();
         status.猎妖 = now;
         player.猎妖目标 = name;
-        await Write_playerData(usr_qq,player,"无","无",status,"无","无")
+        await Write_playerData(usr_qq,player,"无","无",status,"无","无",true)
         return e.reply(`开始猎杀妖兽,5分钟后归来`);
     }
     async xx(e:AMessage):Promise<boolean>{
         const usr_qq = e.user_id;
         if (!await existplayer(1, usr_qq, 'player')) return false;
-        let status = await Read_player(1,usr_qq,"status");
-        let player = await Read_player(1,usr_qq,"player");
-        const name = e.msg.replace(/(\/|#)结算/, "").trim();
-        if(!await checkNameExists(name,status)) return e.reply(`没有这个状态`);
-        if(status[name] === 0) return e.reply(`你不在这个状态`);
+        let results = await Read_playerData(usr_qq,true,false,false,true,true,'/猎杀妖兽地点.json',"/道具列表.json")
+        let status = results.status
+        let player = results.player
+        const activeStatus = await getNonZeroKeys(status);
+        console.log(activeStatus);
+        if (!activeStatus) return e.reply(`没有状态`);
         const now = Date.now();
-        const time = now - status[name];
-        if(player.猎妖目标 === "无") {e.reply(`出现错误,存档力的猎妖目标为无，自动设置为金钱豹`); player.猎妖目标 ="金钱豹" }
-        let B_player = await _item(1,'猎杀妖兽地点')
-        B_player =B_player.find(item => item.name === player.猎妖目标);
-        if(name === "猎妖"){
-            if(time < 5*60*1000) return e.reply(`时间未到`);
-            const A_player={
-                name: player.name,
-                暴击加成: player.暴击加成,
-                爆伤加成: player.爆伤加成,
-                攻击加成:player.攻击加成,
-                闪避加成:player.闪避加成,
-                防御加成:player.防御加成,
-                当前生命:player.当前生命,
-            }
-            const BB_player ={
-                name: B_player.name,
-                暴击加成: B_player.暴击加成,
-                爆伤加成: B_player.爆伤加成,
-                攻击加成:B_player.攻击加成,
-                闪避加成:B_player.闪避加成,
-                防御加成:B_player.防御加成,
-                当前生命:B_player.生命加成,
-            }
-            let msg = await player_zhandou(A_player,BB_player);
-            let name =await determineWinner(msg.result,player.name,B_player.name)
-            console.log(msg.result);
-            let replyMsg;
-            if (name === player.name) {
-                const randomIndex = Math.floor(Math.random() * B_player.掉落物.length);
-                const x = B_player.掉落物[randomIndex];
-                await Add_bag_thing(usr_qq, x, 1);
-                player.当前生命 -= msg.A_damage;
-                replyMsg = `恭喜你打赢了${B_player.name}，获得${x}*1`;
-              } else {
-                player.当前生命 -= msg.A_damage;
-                replyMsg = `恭喜你没打赢了${B_player.name}，获得空气*1`;
-              }
-              status.猎妖 = 0;
-              player.猎妖目标 = "无";
-              await Write_playerData(usr_qq, player, "无", "无", status,"无","无");
-              return e.reply(replyMsg)
+        const time = now - status[activeStatus];
+        const isHunting1 = activeStatus === "猎妖";
+        if (isHunting1 && player.猎妖目标 === "无") {
+        e.reply(`出现错误，存档力的猎妖目标为无，自动设置为金钱豹`);
+        player.猎妖目标 = "金钱豹";
         }
-        return false;
+        let huntingLocation = results[`/猎杀妖兽地点.json`]
+        let daojulist = results[`/道具列表.json`]
+        let shezhi = await Read_json(2)
+        if(player.猎妖目标 && player.猎妖目标 !== "无")huntingLocation = huntingLocation.find(item => item.name === player.猎妖目标);
+        if (isHunting1) {
+            if (time < 5 * 60 * 1000) return e.reply(`时间未到`);
+                const A_player = {
+                    name: player.name,
+                    暴击加成: player.暴击加成,
+                    爆伤加成: player.爆伤加成,
+                    攻击加成: player.攻击加成,
+                    闪避加成: player.闪避加成,
+                    防御加成: player.防御加成,
+                    当前生命: player.当前生命,
+                };
+                const B_player = {
+                    name: huntingLocation.name,
+                    暴击加成: huntingLocation.暴击加成,
+                    爆伤加成: huntingLocation.爆伤加成,
+                    攻击加成: huntingLocation.攻击加成,
+                    闪避加成: huntingLocation.闪避加成,
+                    防御加成: huntingLocation.防御加成,
+                    当前生命: huntingLocation.生命加成,
+                };
+                let msg = await player_zhandou(A_player, B_player);
+                let name = await determineWinner(msg.result, player.name, huntingLocation.name);
+                console.log(msg.result);
+                let replyMsg;
+                if (name === player.name) {
+                    const randomIndex = Math.floor(Math.random() * huntingLocation.掉落物.length);
+                    const dropItem = huntingLocation.掉落物[randomIndex];
+                    await Add_bag_thing(usr_qq, dropItem, 1, "无");
+                    player.当前生命 -= msg.A_damage;
+                    replyMsg = `恭喜你打赢了${huntingLocation.name}，获得${dropItem}*1`;
+                } else {
+                    player.当前生命 -= msg.A_damage;
+                    replyMsg = `恭喜你没打赢了${huntingLocation.name}，获得空气*1`;
+                }
+                status.猎妖 = 0;
+                player.猎妖目标 = "无";
+                await Write_playerData(usr_qq, player, "无", "无", status, "无", "无", true);
+                return e.reply(replyMsg);
+        }else if(activeStatus == '打工'){
+            return await stopstatus(e,`打工`,`金钱`,`元`,10)
+        }else if(activeStatus == '猎杀妖兽'){
+            const time = (now - status.猎杀妖兽) / 60000; // 将时间转换为分钟
+                let x;
+                const rank= await getString2(player.武者境界, "E阶", "D阶", "C阶", "B阶", "A阶");
+                console.log(rank);
+                
+                switch (rank) {
+                    case "E阶": x = 0.9; break;
+                    case "D阶": x = 1.15; break;
+                    case "C阶": x = 1.35; break;
+                    case "B阶": x = 1.65; break;
+                    case "A阶": x = 1.9; break;
+                    default: x = 1; break; // 如果没有匹配的境界，默认为1
+                }
+                const money = Math.floor(time * x);
+                const xiuwei = Math.floor(time * 0.3);
+                const tipo = Math.floor(time * 0.35);
+                player.体魄力量 = tipo;
+                player.灵气 += xiuwei;
+                player.金钱 += money;
+                e.reply(`结束成功，获得金钱${money}元,修为${xiuwei}体魄力量${tipo}`);
+        }else if(activeStatus == '修炼'){
+            return await stopstatus(e,`修炼`,`灵气`,`灵气`,0.4);
+        }else if(activeStatus == '锻炼'){
+            return await stopstatus(e,`锻炼`,`体魄力量`,`体魄力量`,0.4);
+        }else if(activeStatus == '修炼灵魂'){
+            return await stopstatus(e,`修炼灵魂`,`灵魂力量`,`灵魂力量`,0.2);
+        }else if(activeStatus == "采药"){
+            const timeInMinutes = (now - status.采药) / 60000;
+            if (timeInMinutes < 30) {
+            if (Math.random() < 0.5) {
+                return e.reply(`没用采到药材`);
+            }
+            }
+            const caiyao = shezhi.find((item) => item.type === "采药");
+            const cishu = Math.max(Math.ceil(timeInMinutes / 30), 1);
+            const obtainedItems = new Map();
+
+            const randomNumber = (itemName) => {
+            if (itemName === "低级强灵草") {
+                return Math.floor(Math.random() * 10) + 5;
+            } else {
+                return Math.floor(Math.random() * 5);
+            }
+            };
+            const addItemsToBag = (items) => {
+            const promiseArr = items.map(([itemName, quantity]) => {
+                const daoju = daojulist.find((d) => d.name === itemName);
+                return Add_bag_thing(usr_qq, itemName, quantity, daoju);
+            });
+            return Promise.all(promiseArr);
+            };
+
+            for (let i = 0; i < cishu; i++) {
+            const randomNum = Math.random();
+            const thing = caiyao.thing.find((t) => t.概率 <= randomNum);
+            const itemName = thing.name;
+            const itemQuantity = randomNumber(itemName);
+            if (obtainedItems.has(itemName)) {
+                obtainedItems.set(itemName, obtainedItems.get(itemName) + itemQuantity);
+            } else {
+                obtainedItems.set(itemName, itemQuantity);
+            }
+            }
+            const itemsToAdd = Array.from(obtainedItems);
+            addItemsToBag(itemsToAdd)
+            .then(() => {
+                let msg = '';
+                obtainedItems.forEach((quantity, item) => {
+                msg += `
+            获得${item}${quantity}`;
+                });
+                e.reply(msg);
+            })
+            .catch((err) => {
+                console.error(err);
+                e.reply('采集药材出现错误,请稍后重试');
+            });
+        }
+        status[activeStatus] = 0;
+        await Write_playerData(e.user_id, player, "无", "无", status, "无", "无", true);
+        return true;
+        }
     }
-}   
 
 

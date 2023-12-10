@@ -1,30 +1,21 @@
-import { createApps, getAppName, getAppProCoinfg } from 'alemonjs'
-import { buildTools } from 'alemon-rollup'
-import { AppName} from './app-config'
+import { createApps} from 'alemonjs'
+import { AppName,DirPath} from './config'
 import chalk from 'chalk';
-import { getAppPath } from 'alemonjs'
-export const DirPath= getAppPath(import.meta.url)
-import { __PATH,Write_json_path,Read_json_path} from './model/wuzhe';
+import { __PATH,Write_json,Read_json} from './model/wuzhe';
 import fs from 'fs'
 import path from 'path';
-
-const hello = await buildTools(
-  AppName,
-  getAppProCoinfg('dir')
-)
-const apps = createApps(import.meta.url)
-apps.component(hello)
-apps.mount()
+import * as apps from './apps.js'
+const app = createApps(import.meta.url)
+app.component(apps)
+app.mount()
 console.log(chalk.cyan('------------------------------------'));
 console.log(`~\t${chalk.yellow('武者文游')}\t~`);
 console.log(`~\t${chalk.yellow('作者：名字')}\t~`);
 console.log(chalk.cyan('------------------------------------'));
-const moduleDir = path.dirname(new URL(import.meta.url).pathname);
 
-const playerJsonPath = path.join(moduleDir, '/resources/data/player.json');
-console.log(fs.existsSync(playerJsonPath));
+const playerJsonPath = path.join(DirPath, '/resources/data/player.json');
 if(!fs.existsSync(playerJsonPath)){
-  await Write_json_path('../resources/data/player.json',await Read_json_path(`../resources/data/player-default.json`))
+  await Write_json(3,await Read_json(3,`/player-default.json`),'/player.json')
   console.log(`写入player.json文件`);
 }
  

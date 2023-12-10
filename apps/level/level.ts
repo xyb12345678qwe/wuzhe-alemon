@@ -1,5 +1,5 @@
-import { existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo} from "../../model/wuzhe.js";
-import { plugin,AMessage } from "../../app-config.js";
+import { plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo } from "../../api";
+
 export class level extends plugin {
 	constructor() {
 		super({
@@ -67,23 +67,23 @@ export class level extends plugin {
         return false;
     }
     async stop1(e:AMessage):Promise<boolean>{
-        await stopstatus(e,`修炼`,`灵气`,`灵气`,0.4);
-        return false;
+        // await stopstatus(e,`修炼`,`灵气`,`灵气`,0.4);
+        return e.reply(`此功能已废弃，请使用结束状态`);
     }
     async d(e:AMessage):Promise<boolean>{
         await startstatus(e,`锻炼`,`锻炼体魄`);
         return false;
     }
     async stop2(e:AMessage):Promise<boolean>{
-        await stopstatus(e,`锻炼`,`体魄力量`,`体魄力量`,0.4);
-        return false;
+        // await stopstatus(e,`锻炼`,`体魄力量`,`体魄力量`,0.4);
+        return e.reply(`此功能已废弃，请使用结束状态`);
     }
     async l(e:AMessage):Promise<boolean>{
         await startstatus(e,`修炼灵魂`,`修炼灵魂`);
         return false;
     }
     async stop3(e:AMessage):Promise<boolean>{
-        await stopstatus(e,`修炼灵魂`,`灵魂力量`,`灵魂力量`,0.2);
-        return false;
+        // await stopstatus(e,`修炼灵魂`,`灵魂力量`,`灵魂力量`,0.2);
+        return e.reply(`此功能已废弃，请使用结束状态`);
     }
 }

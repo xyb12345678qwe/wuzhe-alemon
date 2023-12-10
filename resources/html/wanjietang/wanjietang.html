@@ -163,7 +163,7 @@
             <div class="item-image"></div>
             <div>{{item.name}}</div>
             <div class="price">{{item.价格 * 1.2}}元</div>
-            {{if item.type === '道具'}}
+            {{if item.type === '道具'|| item.type === '功法'}}
             <div class="info">介绍：{{item.介绍}}</div>
             {{/if}}
           </div>

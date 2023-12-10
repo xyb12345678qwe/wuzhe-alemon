@@ -1,5 +1,4 @@
-import base from './base.js';
-import {plugin,AMessage,Show,puppeteer,DirPath} from '../app-config'
+import {plugin,AMessage,Show,puppeteer,base} from '../api'
 export default class Game extends base {
   constructor(e:AMessage) {
     super(e);
@@ -31,6 +30,9 @@ export default class Game extends base {
   }
   async get_wanjietang(myData:any) {
     return this.getScreenData('wanjietang', myData);
+  }
+  async get_bag(myData:any) {
+    return this.getScreenData('bag', myData);
   }
 
 }
