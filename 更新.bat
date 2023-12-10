@@ -1,29 +1,39 @@
 @echo off
-setlocal
-
+setlocal enabledelayedexpansion
 chcp 65001
-
 echo 正在提交修改...
 set /P COMMIT_MSG=请输入提交信息：
-chcp 65001 > nul
-
+chcp 65001 >nul
 git add .
 git commit -m "%COMMIT_MSG%"
 
 echo 正在推送到Gitee...
+git push origin master --progress > push.tmp
 
-rem 显示进度条
-setlocal enabledelayedexpansion
-set "progress=-"
-for /L %%i in (1,1,20) do (
-    echo|set /p=!progress!
-    timeout /t 1 /nobreak >nul
-    set "progress=!progress!-"
+echo.
+echo 推送进度：
+for /F "tokens=1,2,3,4" %%a in ('type push.tmp ^| findstr /i "objects") do (
+    set percentage=%%b
+    set transferred=%%c
+    set total=%%d
 )
+
+set /A progress=percentage * 50 / 100
+
+echo [                                              ]
+echo [**************************************************]
+
+for /L %%i in (1,1,%progress%) do (
+    call :print_char
+)
+
 echo.
 
-git push origin master
-
-echo 完成.
-
+del push.tmp
+echo 完成
 endlocal
+exit /b
+
+:print_char
+set /p "=" < nul
+exit /b
