@@ -16,7 +16,9 @@ export const 体质 = sequelize.define("体质", {
 });
 await 体质.sync({ force: true });
 // 道具列表.sync({ alter: true }) 
-let list = await Read_json(4,'/体质.json');
+let list = await Read_json(4,'/体质.json')
+console.log(list);
+
 list.forEach(item => {
     体质.create({
         name:item.name,

@@ -75,6 +75,10 @@
     - icon: help-icon_2
       title: '(/|#)配置技能栏+技能栏名*技能名'
       desc: '配置技能栏'
+    - icon: help-icon_2
+      title: '(/|#)查看技能栏'
+      desc: '查看技能栏'
+      
 - group: 个人信息
   list:
     - icon: help-icon_2
@@ -158,6 +162,11 @@
     - icon: help-icon_2
       title: '(/|#)使用+物品名*数量'
       desc: '使用'  
+- group: 体质
+  list:
+    - icon: help-icon_2
+      title: '(/|#)进入体质觉醒池'
+      desc: '觉醒体质'  
 - group: 宗门
   list:
     - icon: help-icon_2
@@ -181,6 +190,10 @@
     - icon: help-icon_2
       title: '(/|#)捐供钱库+数字'
       desc: '捐供钱库'
+    - icon: help-icon_2
+      title: '(/|#)宗门阵法石'
+      desc: '查看宗门阵法石'
+     
     
    
 - group: GM

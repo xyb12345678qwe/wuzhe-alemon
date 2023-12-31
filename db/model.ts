@@ -1,5 +1,5 @@
 import { AMessage } from "../api";
-import { Sequelize, user_bag, user_equiment, user_id,user_player, user_status,Op, 灵器列表,sequelize, literal,user_zongmen} from "./index";
+import { Sequelize, user_bag, user_equiment, user_id,user_player, user_status,Op, 灵器列表,sequelize, literal,user_zongmen, 体质} from "./index";
 /**
  * 
  * @param num [1:判断存档 2:判断宗门]
@@ -178,7 +178,6 @@ interface Lingqi {
       result.set(grade, data.filter((item) => item.品级 === grade));
     });
   
-    // Convert the Map values to an array of objects
     return Array.from(result.values()).flat();
   }
   
@@ -219,4 +218,73 @@ interface Lingqi {
       console.error("未能获取随机灵器");
       return null;
     }
+  }
+  
+interface tizhi {
+  id: number;
+  name: string;
+  type: string;
+  修炼加成: number;
+  防御加成: number;
+  生命加成: number;
+  暴击加成: number;
+  爆伤加成: number;
+  等级: number;
+  exp: number;
+}
+const 权重2: Record<string, number> = {
+  低级体质:50,
+  中级体质:45,
+  高级体质:40,
+  天级体质:30,
+  圣级体质:10,
+  神级体质:5
+};
+   /**
+   * 觉醒体质
+   * @param e
+   * @returns
+   */
+   export async function gettizhi(e: AMessage): Promise<tizhi | null> {
+    const 灵器_list:any = await 体质.findAll({raw:true})
+    const 灵器分类 = getItemsByGrade2(灵器_list);
+    const randomItem:any = getRandomItem2(new Map(灵器分类.map((item) => [item.type, [item]])), 权重2);
+  
+    if (randomItem) {
+      e.reply(`觉醒成功，觉醒出${randomItem.name}，品级为${randomItem.type}`);
+      return randomItem;
+    } else {
+      console.error("未能获取随机灵器");
+      return null;
+    }
+  }
+  export function getItemsByGrade2(data: tizhi[]): tizhi[] {
+    const grades: string[] = ["低级体质", "中级体质", "高级体质", "天级体质","圣级体质","神级体质"];
+    const result: Map<string, tizhi[]> = new Map();
+  
+    grades.forEach((grade) => {
+      result.set(grade, data.filter((item) => item.type === grade));
+    });
+  
+    return Array.from(result.values()).flat();
+  }
+  
+  export function getRandomItem2(灵器分类: Map<string, tizhi[]>, 权重: Record<string, number>):tizhi | null {
+    const totalWeight = Object.values(权重).reduce((a, b) => a + b, 0);
+    const randomWeight = Math.random() * totalWeight;
+    let currentWeight = 0;
+  
+    const flattenedItems = Array.from(灵器分类.values()).flat();
+  
+    for (const [grade, weight] of Object.entries(权重)) {
+      currentWeight += weight;
+      if (randomWeight <= currentWeight) {
+        const items = flattenedItems.filter((item) => item.type === grade);
+        if (items.length > 0) {
+          return items[Math.floor(Math.random() * items.length)];
+        }
+      }
+    }
+  
+    return null;
   }

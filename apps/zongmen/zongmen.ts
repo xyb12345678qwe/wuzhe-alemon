@@ -70,7 +70,7 @@ export class zongmen extends APlugin  {
         "阵法石6": "无"
         };
         await Write_player(player.宗门.宗主, false, false,false,false,zong)
-        const replyMessage = Object.keys(zong.宗门阵法石).map(key => `${key}:${zong.宗门阵法石[key]}`).join('');
+        const replyMessage = Object.keys(zong.宗门阵法石).map(key => `${key}:${zong.宗门阵法石[key]}`).join('\r');
         return e.reply(replyMessage);
     }
     async juan(e:AMessage):Promise<boolean>{
