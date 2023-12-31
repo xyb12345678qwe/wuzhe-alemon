@@ -167,6 +167,9 @@
     - icon: help-icon_2
       title: '(/|#)进入体质觉醒池'
       desc: '觉醒体质'  
+    - icon: help-icon_2
+      title: '(/|#)强化体质'
+      desc: '强化体质'  
 - group: 宗门
   list:
     - icon: help-icon_2

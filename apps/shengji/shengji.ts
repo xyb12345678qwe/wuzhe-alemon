@@ -27,7 +27,7 @@ export class shengji extends APlugin  {
             let player = results.player;
             const lingqi = player.本命灵器;
             const exp = lingqi.等级*1000;
-            if(lingqi.exp < exp) return e.reply(`经验不足`) ;
+            if(lingqi.exp < exp) return e.reply(`经验不足,还差${exp - lingqi.exp}`) ;
             if(lingqi.等级 == 20) return e.reply(`已到达满级`)
             lingqi.exp -= exp;
             lingqi.等级 += 1;
