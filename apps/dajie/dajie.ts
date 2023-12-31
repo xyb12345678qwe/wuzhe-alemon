@@ -1,6 +1,7 @@
-import { Show,plugin,AMessage, existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+import { Show,APlugin ,AMessage,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
   checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject } from "../../api";
-export class dajie extends plugin {
+  import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid} from '../../model/gameapi';
+export class dajie extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -20,7 +21,7 @@ export class dajie extends plugin {
 					fnc: 'bidou',
         },
         {
-					reg: /^(#|\/)at.*$/,
+					reg: /^(#|\/)gbgbgbgbgbgbgbg.*$/,
 					fnc: 'at',
         },
 			],
@@ -28,37 +29,29 @@ export class dajie extends plugin {
 	}
     async jie(e:AMessage):Promise<boolean> {
         const usr_qq = e.user_id;
-        console.log(usr_qq);
-        if (!await existplayer(1, usr_qq, 'player')) return false;
-      
-        let B_player = await getB_qq(e, "player");
+        if (!await existplayer(1, usr_qq)) return false;
+        let B_player_results:any = await getB_qq(e, "player");
+        let B_player = B_player_results.player;
+        let B_id = await getB_qq(e, "id");
         if (!B_player) return false;
-      
-        let player = await Read_player(1,true, usr_qq, "player");
+        let results = await Read_player(1,usr_qq)
+        let player = results.player;
         if (player.当前生命 < 50) return e.reply(`先去治疗吧`);
-      
         const A_player = await createPlayerObject(player);
         const BB_player = await createPlayerObject(B_player);
-      
         let msg = await player_zhandou(A_player, BB_player);
         let name = await determineWinner(msg.result, player.name, B_player.name);
-      
         let temp = msg.result;
-        console.log(temp);
-      
         if (name === player.name) {
           const money = player.金钱 * 0.9;
           temp.push(`打劫成功,获得${money}`);
           player.金钱 += money;
           B_player.金钱 -= money;
         }
-      
-        player.当前生命 -= msg.A_damage;
-        B_player.当前生命 -= msg.B_damage;
-      
-        await Write_player(1,true, usr_qq, player, "player");
-        await Write_player(1,true, B_player.id, B_player, "player");
-      
+        player.当前生命 -= Number(msg.B_damage);
+        player.当前生命 -= Number(msg.A_damage);
+        await Write_player(usr_qq,player,false,false,false);
+        await Write_player(String(B_id),player,false,false,false);
         let get_data = { temp };
         await pic(e, get_data, `get_msg`);
         return false;
@@ -72,10 +65,13 @@ export class dajie extends plugin {
       }
       async bidou(e:AMessage):Promise<boolean> {
         const usr_qq = e.user_id;
-        if (!await existplayer(1, usr_qq, 'player')) return false;
-        let B_player = await getB_qq(e, "player");
-        if (!B_player) return false;
-        let player = await Read_player(1,true, usr_qq, "player");
+        if (!await existplayer(1, usr_qq)) return false;
+        let B_player_results:any = await getB_qq(e, "player");
+        let B_player = B_player_results.player;
+        let B_id = await getB_qq(e, "id");
+        if (!B_player || !B_id) return false;
+        let results = await Read_player(1,usr_qq)
+        let player = results.player;
         if (player.当前生命 < 50) return e.reply(`先去治疗吧`);
         const A_player = await createPlayerObject(player);
         const BB_player = await createPlayerObject(B_player);
@@ -87,11 +83,10 @@ export class dajie extends plugin {
         player.体魄力量 += 100;
         B_player.灵气 += 50;
         B_player.体魄力量 += 100;
-        B_player.当前生命 -= msg.B_damage;
-        player.当前生命 -= msg.A_damage;
-      
-        await Write_player(1,true, usr_qq, player, "player");
-        await Write_player(1,true, B_player.id, B_player, "player");
+        B_player.当前生命 -= Number(msg.B_damage);
+        player.当前生命 -= Number(msg.A_damage);
+        await Write_player(usr_qq,player,false,false,false);
+        await Write_player(String(B_id),player,false,false,false);
         let get_data = { temp };
         await pic(e, get_data, `get_msg`);
         return false;

@@ -2,14 +2,11 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-  <!-- <link rel="stylesheet" type="text/css" href="{{pluResPath}}/html/player/player.css" /> -->
   <link
       rel="stylesheet"
       type="text/css"
-      href="{{pluResPath}}/html/player/player.css"
+      href="@/resources/html/player/player.css"
     />
-  <!-- <meta charset="UTF-8"> -->
-  <!-- <link rel="shortcut icon" href="#" /> -->
 </head>
 <body>
   <div>
@@ -17,12 +14,12 @@
     <div class="card_box">
       <div class="user_top_left">
         <div class="user_top_img_bottom">
-          <img class="user_top_img" src="https://allapi.mzswebs.top/touxiang.php" onerror="whenError(this)" />
+          <img class="user_top_img" src="" onerror="whenError(this)" />
         </div>
       </div>
       <div class="user_top_right">
         <div class="user_top_font_right">道号：{{name}}</div>
-        <div class="user_top_font_right">id：{{player.id}}</div>
+        <div class="user_top_font_right">id：{{player.uid}}</div>
         <div class="user_top_font_right">性别：{{player.性别}}</div>
         <div class="user_top_font_right">
           生命：
@@ -98,19 +95,19 @@
         <div class="user_font wupin">
           <div class="item">
             <div class="item_title font_left">
-              本命灵器：{{player.本命灵器.name}}【{{player.本命灵器.品级}}】{{}}<br />
+              本命灵器：{{player.本命灵器.name}}【{{player.本命灵器.品级}}】<br />
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  {{if equipment.胸甲 !== "无"&&equipment.腿甲 !== "无"&&  equipment.法宝 !== "无"}}
+  {{if equipment.胸甲&& equipment.腿甲&&  equipment.法宝}}
   <div class="card_box2">
     <div class="use_data2">
       <div class="user_font user_font_title">[装备信息]</div>
       <div class="user_font wupin">
-        {{if equipment.胸甲 !== "无"}}
+        {{if equipment.胸甲}}
         <div class="item">
           <div class="item_title2">{{equipment.胸甲.name}}</div>
           {{if equipment.胸甲.攻击>10 || equipment.胸甲.防御>10 || equipment.胸甲.hp>10}}
@@ -135,7 +132,7 @@
           {{/if}}
           {{/if}}
         </div>
-        {{if equipment.腿甲 !== "无"}}
+        {{if equipment.腿甲}}
         <div class="item">
           <div class="item_title2">{{equipment.腿甲.name}}</div>
           {{if equipment.腿甲.攻击>10 || equipment.腿甲.防御>10 || equipment.腿甲.hp>10}}
@@ -160,7 +157,7 @@
           {{/if}}
           {{/if}}
         </div>
-        {{if equipment.法宝 !== "无"}}
+        {{if equipment.法宝}}
         <div class="item">
           <div class="item_title2">{{equipment.法宝.name}}</div>
           {{if equipment.法宝.攻击>10 || equipment.法宝.防御>10 || equipment.法宝.生命>10}}

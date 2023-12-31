@@ -26,7 +26,6 @@ async function backupFolders(): Promise<void> {
   }
   console.log('备份完成！');
 }
-
 async function copyFolder(sourcePath: string, destinationPath: string): Promise<void> {
   const files = await fs.readdir(sourcePath);
   for (const file of files) {
@@ -43,7 +42,6 @@ async function copyFolder(sourcePath: string, destinationPath: string): Promise<
     }
   }
 }
-
 async function copyFile(sourcePath: string, destinationPath: string): Promise<void> {
   fs.copyFile(sourcePath, destinationPath);
 }

@@ -1,6 +1,6 @@
-import {plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,msToTime, getUserStatus,getstring } from '../../api'
-
-export class work extends plugin {
+import {APlugin ,AMessage,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,msToTime, getUserStatus,getstring } from '../../api'
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';
+export class work extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -35,7 +35,9 @@ export class work extends plugin {
 		});
 	}
     async sha(e:AMessage):Promise<boolean>{
-        let player = await getUserStatus(e,"player")
+        const results = await getUserStatus(e)
+        if(!results) return false;
+        let player = results.player
         if(await getstring(player.武者境界,"F阶")) return e.reply(`才f阶就来猎杀妖兽？`);
         await startstatus(e,"猎杀妖兽","猎杀妖兽")
         return false;
@@ -65,7 +67,9 @@ export class work extends plugin {
     }
     async dq(e:AMessage):Promise<boolean>{
         const now = Date.now();
-        let status = await getUserStatus(e,"status")
+        const results = await getUserStatus(e)
+        if(!results) return false;
+        let status = results.status;
         const x= await getNonZeroKeys(status)
         if(x !==false) return e.reply(`正在${x}中,已过${await msToTime(now - status[x])}`)
         return e.reply(`空闲中`) 

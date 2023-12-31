@@ -22,6 +22,8 @@ npm i js-yaml
 
 ### 使用说明
 
+请先配置数据库mysql,地址`plugin/wuzhe-plugin-alemon/db/mysql`里配置mysql个项数据
+
 请安装插件后对机器人输入`#武者帮助`，查看可用功能
 
 

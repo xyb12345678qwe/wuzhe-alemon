@@ -7,17 +7,14 @@
       title: '(/|#)踏入武者'
       desc: '踏入武者'
     - icon: help-icon_2
-      title: '(/|#)添加账号绑定id+对方id'
+      title: '(/|#)连接uid + uid'
+      desc: '连接uid'
+    - icon: help-icon_2
+      title: '(/|#)添加uid可连接qq +qq号'
       desc: '添加账号绑定id,这样别人可以使用你的账号'
     - icon: help-icon_2
-      title: '(/|#)解除账号绑定id+对方id'
-      desc: '解除账号绑定id'
-    - icon: help-icon_2
-      title: '(/|#)自废命脉'
-      desc: '自废命脉'
-    - icon: help-icon_2
-      title: '(/|#)解除账号绑定'
-      desc: '解除账号绑定'
+      title: '(/|#)断开uid'
+      desc: '断开uid'
     - icon: help-icon_2
       title: '(/|#)备用踏入武者'
       desc: '踏入武者'
@@ -72,6 +69,12 @@
     - icon: help-icon_2
       title: '(/|#)拜师学艺'
       desc: '拜师学艺'
+    - icon: help-icon_2
+      title: '(/|#)开始采药'
+      desc: '开始采药'
+    - icon: help-icon_2
+      title: '(/|#)配置技能栏+技能栏名*技能名'
+      desc: '配置技能栏'
 - group: 个人信息
   list:
     - icon: help-icon_2

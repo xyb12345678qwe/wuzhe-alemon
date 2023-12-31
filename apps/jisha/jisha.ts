@@ -1,6 +1,7 @@
-import { plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,Write_list,getCurrentTime,_item, Read_json } from "../../api";
-export class jisha extends plugin {
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点} from '../../model/gameapi';
+export class jisha extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -27,7 +28,7 @@ export class jisha extends plugin {
 		});
 	}
     async x(e:AMessage):Promise<boolean>{
-        let item = await _item(1,`妖兽地点`);
+        let item = await 妖兽地点.findAll({raw:true});
         let get_data={item};
         await pic(e,get_data,`get_jisha`);
         return false;
@@ -35,9 +36,9 @@ export class jisha extends plugin {
     async xx(e:AMessage):Promise<boolean>{
         const now: number = Date.now();
         const usr_qq: string = e.user_id;
-        if (!await existplayer(1, usr_qq, 'player')) return false;
+        if (!await existplayer(1, usr_qq)) return false;
         const name: string = e.msg.replace(/(\/|#)探索/, "").trim();
-        const x: any = await Read_json(4, '/妖兽地点.json');
+        const x: any = await 妖兽地点.findAll({raw:true});
         let item: any = x.find((team: any) => team.name === name);
         if (!item) return false;
         let msg: string[] = [];
@@ -50,19 +51,19 @@ export class jisha extends plugin {
             msg.push(`${item.妖兽[i].name}: ${item.妖兽[i].数量}只`);
         }
         item.time = now;
-        await Write_list(x, "妖兽地点");
+        妖兽地点.update(item,{where:{name:name}});
         return e.reply(msg.join('\n'));
     }
     async xxx(e:AMessage):Promise<boolean>{
         const usr_qq: string = e.user_id;
-        if (!await existplayer(1, usr_qq, 'player')) return false;
+        if (!await existplayer(1, usr_qq)) return false;
         const name: string = e.msg.replace(/(\/|#)击杀/, "").trim();
         const [adress, boss, num] = name.split("*").map(code => code.trim());
         console.log(adress);
         console.log(boss);
         console.log(num);
         
-        const x: any = await Read_json(4, '/妖兽地点.json');
+        const x: any = await 妖兽地点.findAll({raw:true});
         const item: any = x.find((team: any) => team.name == adress);
         console.log(item);
         if (!item) return false;
@@ -74,7 +75,8 @@ export class jisha extends plugin {
         console.log(xxx);
         if (xxx.数量 < parseInt(num)) return e.reply(`数量不足`);
         if (!xxx) return false;
-        let player: any = await Read_player(1,true, usr_qq, "player");
+        const results = await Read_player(1,usr_qq);
+        let player: any = results.player;
         if (player.当前生命 < 50) return e.reply(`先去治疗吧`);
         const A_player: any = {
             name: player.name,
@@ -109,7 +111,8 @@ export class jisha extends plugin {
         }
         player.当前生命 -= msg.A_damage;
         xxx -= parseInt(num);
-        await Write_playerData(usr_qq, player, "无", "无", "无", x, "妖兽地点",true);
+        await Write_player(usr_qq,player,false,false,false);
+        妖兽地点.upsert({ name:adress ,...x});
         const get_data: any = { temp };
         await pic(e, get_data, `get_msg`);
         return e.reply(`失败`);

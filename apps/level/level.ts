@@ -1,6 +1,6 @@
-import { plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo } from "../../api";
+import { APlugin ,AMessage,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo } from "../../api";
 
-export class level extends plugin {
+export class level extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */

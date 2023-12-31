@@ -1,16 +1,16 @@
 import Redis from "ioredis";
-import { plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,Read_json_path,oImages,getidlist,Read_player2,allzongmen,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
+import { APlugin ,AMessage,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,oImages,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
     from "../../api";
-const redis = new Redis({
-    port: 6379,          
-    host: '127.0.0.1',  
-    password: '', 
-});
+// const redis = new Redis({
+//     port: 6379,          
+//     host: '127.0.0.1',  
+//     password: '', 
+// });
 
 const playerdata = {}; 
 
-export class 测试 extends plugin {
+export class 测试 extends APlugin  {
     constructor() {
         super({
             /** 功能名称 */

@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { writeFileSync } from 'fs'
 import art from 'art-template'
 import { pipeline, Readable } from 'stream';
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表} from './gameapi.js';
 /**
  * @param directory 文件
  * @param data 数据
@@ -31,6 +32,12 @@ export function oImages(directory: string, data: any = {}) {
    shezhi: path.join(DirPath,"shezhi",'all_shezhi.json') 
  };
 // console.log(__PATH.player);
+export const jsontype={
+    "1":__PATH.playerjson,
+    "2":__PATH.shezhi,
+    "3":data,
+    "4":__PATH.list,
+}
 let yamltype ={
  "1":__PATH.help,
 }
@@ -39,20 +46,19 @@ let type ={
       "1":__PATH.player,
       "2":__PATH.zongmen,
 }
-let jsontype={
-     "1":__PATH.playerjson,
-     "2":__PATH.shezhi,
-     "3":data,
-     "4":__PATH.list,
-}
+
 let item ={
     "1":__PATH.list
 }
 export async function Add_生命(usr_qq: string, num: number) {
-    const player = await Read_player(1,true,usr_qq, "player");
-    player.当前生命 += num;
-    player.当前生命 = player.当前生命 > player.生命上限 ? player.生命上限 : player.当前生命;
-    await Write_player(1,true, usr_qq, player, "player");
+  let results = await Read_player(1,usr_qq)
+  let player = results.player;
+  const maxLife = Math.max(player.生命上限, num);
+  const newLife = Math.min(player.当前生命 + num, maxLife);
+  if (newLife !== player.当前生命) {
+    player.当前生命+= newLife
+    return newLife;
+  }
 }
 /**
  *
@@ -61,15 +67,15 @@ export async function Add_生命(usr_qq: string, num: number) {
  * @returns 
  */
 
-export async function existplayer(num: number, usr_qq: string, string: string) {
-  if (num === 1) {
-    const json = await Read_json(3,`/player.json`);
-    return json.some(item => item.绑定账号.includes(usr_qq));
-  } else if (num === 2) {
-    const player = await Read_player(1, true, usr_qq, "player");
-    return !!player.宗门;
-  }
-}
+// export async function existplayer(num: number, usr_qq: string, string: string) {
+//   if (num === 1) {
+//     const json = await Read_json(3,`/player.json`);
+//     return json.some(item => item.绑定账号.includes(usr_qq));
+//   } else if (num === 2) {
+//     const player = await Read_player(1, true, usr_qq, "player");
+//     return !!player.宗门;
+//   }
+// }
   /**
  *
  * @param num 路径编号
@@ -78,25 +84,25 @@ export async function existplayer(num: number, usr_qq: string, string: string) {
  * @param string 文件后缀
  * @returns 
  */
-export async function Read_player(num:number,id:boolean,usr_qq:string,fileType:string){
-  let playerPath: string;
-   let list: any;
-   const json = id ? await Read_json(3,`/player.json`) : null;
-   list = id ? json.find((item: any) => item.绑定账号.includes(usr_qq)) : null;
-   const prefix = id ? type[num] + '/' + (id ? list.id : usr_qq) + '/' + (id ? list.id : usr_qq) : type[num] + '/' + usr_qq + '/' + usr_qq;
-   playerPath = `${prefix}-${fileType}.json`;
-   try {
-     const playerData = await fs.promises.readFile(path.join(playerPath), 'utf8');
-     return JSON.parse(playerData);
-   } catch (err) {
-     console.error(err);
-     throw new Error('Failed to read player data');
-   }
- }
-  export async function getidlist(usr_qq: string){
-    const json = await Read_json(3,`/player.json`);
-    return json.find(item => item.绑定账号.includes(usr_qq));
-  }
+// export async function Read_player(num:number,id:boolean,usr_qq:string,fileType:string){
+//   let playerPath: string;
+//    let list: any;
+//    const json = id ? await Read_json(3,`/player.json`) : null;
+//    list = id ? json.find((item: any) => item.绑定账号.includes(usr_qq)) : null;
+//    const prefix = id ? type[num] + '/' + (id ? list.id : usr_qq) + '/' + (id ? list.id : usr_qq) : type[num] + '/' + usr_qq + '/' + usr_qq;
+//    playerPath = `${prefix}-${fileType}.json`;
+//    try {
+//      const playerData = await fs.promises.readFile(path.join(playerPath), 'utf8');
+//      return JSON.parse(playerData);
+//    } catch (err) {
+//      console.error(err);
+//      throw new Error('Failed to read player data');
+//    }
+//  }
+  // export async function getidlist(usr_qq: string){
+  //   const json = await Read_json(3,`/player.json`);
+  //   return json.find(item => item.绑定账号.includes(usr_qq));
+  // }
   /**
  *
  * @param num [1:player.json 2:shezhi 3.data目录 4:item目录]
@@ -130,34 +136,34 @@ export async function Read_player(num:number,id:boolean,usr_qq:string,fileType:s
  * @returns 
  */
   
-export async function Write_player(num: number, id: boolean, usr_qq: string, player: any, suffix: string) {
-    let list: any= await getidlist(usr_qq);
-    let dirBase = '';
-    let fileName = '';
-    if (num === 1 && id) {
-      dirBase = path.join(type[num], list.id);
-      fileName = `${list.id}-${suffix}.json`;
-    } else if (num === 1 && !id) {
-      dirBase = path.join(type[num], usr_qq);
-      fileName = `${usr_qq}-${suffix}.json`;
-    } else if (num === 2) {
-      const playerData = await Read_player(1, false, id ? list.id : usr_qq, "player");
-      dirBase = path.join(type[num], id ? playerData.宗门.宗主 : usr_qq);
-      fileName = `${id ? playerData.宗门.宗主 : usr_qq}-${suffix}.json`;
-    }
-    const dir = path.join(dirBase, fileName);
-    console.log(dir);
-    if (!fs.existsSync(dirBase)) fs.mkdirSync(dirBase, { recursive: true });
-    const newJson = JSON.stringify(player, null, '\t');
-    const writeStream = fs.createWriteStream(dir, { encoding: 'utf8' });
-    const pipelineAsync = promisify(pipeline);
-    try {
-      await pipelineAsync([Readable.from([newJson]), writeStream]);
-      console.log('写入成功');
-    } catch (err) {
-      console.log('写入失败', err);
-    }
-  }
+// export async function Write_player(num: number, id: boolean, usr_qq: string, player: any, suffix: string) {
+//     let list: any= await getidlist(usr_qq);
+//     let dirBase = '';
+//     let fileName = '';
+//     if (num === 1 && id) {
+//       dirBase = path.join(type[num], list.id);
+//       fileName = `${list.id}-${suffix}.json`;
+//     } else if (num === 1 && !id) {
+//       dirBase = path.join(type[num], usr_qq);
+//       fileName = `${usr_qq}-${suffix}.json`;
+//     } else if (num === 2) {
+//       const playerData = await Read_player(1, false, id ? list.id : usr_qq, "player");
+//       dirBase = path.join(type[num], id ? playerData.宗门.宗主 : usr_qq);
+//       fileName = `${id ? playerData.宗门.宗主 : usr_qq}-${suffix}.json`;
+//     }
+//     const dir = path.join(dirBase, fileName);
+//     console.log(dir);
+//     if (!fs.existsSync(dirBase)) fs.mkdirSync(dirBase, { recursive: true });
+//     const newJson = JSON.stringify(player, null, '\t');
+//     const writeStream = fs.createWriteStream(dir, { encoding: 'utf8' });
+//     const pipelineAsync = promisify(pipeline);
+//     try {
+//       await pipelineAsync([Readable.from([newJson]), writeStream]);
+//       console.log('写入成功');
+//     } catch (err) {
+//       console.log('写入失败', err);
+//     }
+//   }
 export async function Write_list(list:String,string:String){
   const dir = `${__PATH.list}/${string}.json`
   const newJson = JSON.stringify(list, null, '\t');
@@ -196,11 +202,11 @@ export async function Write_list(list:String,string:String){
     const users = files.map(file => file.substring(0, file.lastIndexOf('.')));
     return users;
   }
-  export async function allzongmen() {
-    const files = fs.readdirSync(__PATH.zongmen).filter(file => file.endsWith('.json'));
-    const users = files.map(file => file.replace(/-zongmen\.json$/, ''));
-    return users;
-  }
+  // export async function allzongmen() {
+  //   const files = fs.readdirSync(__PATH.zongmen).filter(file => file.endsWith('.json'));
+  //   const users = files.map(file => file.replace(/-zongmen\.json$/, ''));
+  //   return users;
+  // }
 /**
  *
  * @param num [1:曹魏 2:东吴 3:蜀汉]
@@ -248,37 +254,25 @@ export async function Write_list(list:String,string:String){
    * @param boolen 是否开启id查找
    * @param 不写则填无
    */
-  export async function Write_playerData(
-    usr_qq: string,
-    new_player: any,
-    new_bag: any,
-    new_equipment: any,
-    new_status: any,
-    new_list: string,
-    new_list_string: any,
-    boolen:boolean
-  ) {
-    const tasks: Promise<any>[] = [];
-    if (new_player !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_player, 'player'));
-    if (new_bag !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_bag, 'bag'));
-    if (new_equipment !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_equipment, 'equipment'));
-    if (new_status !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_status, 'status'));
-    if (new_list !== '无') tasks.push(Write_list(new_list, new_list_string));
-    await Promise.all(tasks);
-  }
-  export function getItemsByGrade(data: any): Record<string, any> {
-    const grades: string[] = ["低级灵器", "中级灵器", "高级灵器", "帝器"];
-    return grades.reduce((result, grade) => {
-      result[grade] = data.filter(item => item.品级 === grade);
-      return result;
-    }, {} as Record<string, any[]>);
-  }
-  const 权重 = {
-    "低级灵器": 50,
-    "中级灵器": 30,
-    "高级灵器": 15,
-    "帝器": 2
-  };
+  // export async function Write_playerData(
+  //   usr_qq: string,
+  //   new_player: any,
+  //   new_bag: any,
+  //   new_equipment: any,
+  //   new_status: any,
+  //   new_list: string,
+  //   new_list_string: any,
+  //   boolen:boolean
+  // ) {
+  //   const tasks: Promise<any>[] = [];
+  //   if (new_player !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_player, 'player'));
+  //   if (new_bag !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_bag, 'bag'));
+  //   if (new_equipment !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_equipment, 'equipment'));
+  //   if (new_status !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_status, 'status'));
+  //   if (new_list !== '无') tasks.push(Write_list(new_list, new_list_string));
+  //   await Promise.all(tasks);
+  // }
+  
   /**
    * 
    * @param {*} usr_qq 
@@ -290,43 +284,22 @@ export async function Write_list(list:String,string:String){
    * @param id 是否开启id查找
    * @param 
    */
-  export async function Read_playerData(usr_qq: string, player: boolean, bag: boolean, equipment: boolean, status: boolean, id: boolean, ...list: string[]) {
-    const tasks: Promise<any>[] = [];
-    if (player) tasks.push(Read_player(1, id, usr_qq, 'player').then(result => ({ player: result })));
-    if (bag) tasks.push(Read_player(1, id, usr_qq, 'bag').then(result => ({ bag: result })));
-    if (equipment) tasks.push(Read_player(1, id, usr_qq, 'equipment').then(result => ({ equipment: result })));
-    if (status) tasks.push(Read_player(1, id, usr_qq, 'status').then(result => ({ status: result })));
-    if (list) {
-      list.forEach(name => {
-        tasks.push(Read_json(4, name).then(result => ({ [name]: result })));
-      });
-    }
-    const resultsArray = await Promise.all(tasks);
-    const results = Object.assign({}, ...resultsArray);
-    return results;
-  }
-  export async function getRandomItem(灵器分类:any) {
-    const totalWeight = Object.values(权重).reduce((a, b) => a + b, 0);
-    const randomWeight = Math.random() * totalWeight;
-    let currentWeight = 0;
+  // export async function Read_playerData(usr_qq: string, player: boolean, bag: boolean, equipment: boolean, status: boolean, id: boolean, ...list: string[]) {
+  //   const tasks: Promise<any>[] = [];
+  //   if (player) tasks.push(Read_player(1, id, usr_qq, 'player').then(result => ({ player: result })));
+  //   if (bag) tasks.push(Read_player(1, id, usr_qq, 'bag').then(result => ({ bag: result })));
+  //   if (equipment) tasks.push(Read_player(1, id, usr_qq, 'equipment').then(result => ({ equipment: result })));
+  //   if (status) tasks.push(Read_player(1, id, usr_qq, 'status').then(result => ({ status: result })));
+  //   if (list) {
+  //     list.forEach(name => {
+  //       tasks.push(Read_json(4, name).then(result => ({ [name]: result })));
+  //     });
+  //   }
+  //   const resultsArray = await Promise.all(tasks);
+  //   const results = Object.assign({}, ...resultsArray);
+  //   return results;
+  // }
   
-    for (const [grade, weight] of Object.entries(权重)) {
-      currentWeight += weight;
-      if (randomWeight <= currentWeight) {
-        const items = 灵器分类[grade];
-        return items[Math.floor(Math.random() * items.length)];
-      }
-    }
-  }
-  export async function getlingqi(e:AMessage){
-    const 灵器列表 = await Read_json(3,'/item/灵器列表.json');
-    const 灵器分类 = await getItemsByGrade(灵器列表);
-    const randomItem = getRandomItem(灵器分类);
-    const obj = await Promise.resolve(randomItem)
-    console.log(obj);
-    e.reply(`觉醒成功,觉醒出${obj.name},品级为${obj.品级}`);
-    return obj
-  }
   export async function pic(e: AMessage, get_data: any, show: string): Promise<void> {
     const data1 = await new Show(e)[show](get_data);
     const img = await puppeteer.screenshot('pic', { ...data1 });
@@ -357,14 +330,22 @@ export async function Write_list(list:String,string:String){
  * @return {Object} 包含样式和百分比的对象
  */
 export async function Strand(now: number, max: number) {
-    let num: number = Math.min(parseFloat(((now / max) * 1200).toFixed(0)), 100);
+  let num: number;
+  if (now <= 0) {
+    num = Math.floor((now / max) * 100);
+  } else if (now >= max) {
+    num = 100;
+  } else {
+    num = Math.floor(Math.abs((now / max) * 100));
+  }
     return {
       style: `style=width:${num}%`,
-      num: num,
+      num: now < 0 ? -num : num,
     };
   }
 export async function getNonZeroKeys(obj:any) {
   for (let key in obj) {
+    if(key == "uid" ||key == "id" ) continue
     if (obj[key] != 0) return key;
     console.log(`Key: ${key}, Value: ${obj[key]}`);
   }
@@ -372,31 +353,34 @@ export async function getNonZeroKeys(obj:any) {
 } 
 export async function startstatus(e:AMessage,状态:string,返回状态:string){
   const now = Date.now();
-  let status = await getUserStatus(e,"status");
+  const results:any = await getUserStatus(e);
+  let status =results.status
+  console.log(status);
   if (!status) return false;
   const x = await getNonZeroKeys(status);
-  if(x!== false)return e.reply(`你正在${x}中`);
+  if(x)return e.reply(`你正在${x}中`);
   status[状态] = now;
-  await Write_player(1,true,e.user_id,status,'status');
+  await Write_player(e.user_id,false,false,false,status)
   return e.reply(`开始${返回状态}`);
 }
 export async function stopstatus(e:AMessage,状态:string,结算物品:string,结束回答物品:string,结算概率:number){
   const now = Date.now();
-  let status = await getUserStatus(e,"status");
+  const results:any = await getUserStatus(e);
+  let status =results.status
   if (!status) return false;
-  let player = await Read_player(1,true,e.user_id,`player`)
+  let player = results.player;
   if(status[状态] === 0)return e.reply(`你没在${状态}`)
   const time = (now - status[状态])/1000/60
   const money = Math.floor(time * 结算概率);
   player[结算物品] +=money;
   status[状态] = 0;
-  await Write_playerData(e.user_id,player,"无","无",status,"无","无",true)
+  await Write_player(e.user_id,player,false,false,status)
   return e.reply(`结束成功，获得${money}${结束回答物品}`);
 }
-export async function getUserStatus(e:AMessage,string:string) {
+export async function getUserStatus(e:AMessage) {
   const usr_qq = e.user_id;
-  if (!await existplayer(1, usr_qq, 'player')) return false;
-  return await Read_player(1,true, usr_qq, string);
+  if (!await existplayer(1, usr_qq)) return false;
+  return await Read_player(1,usr_qq);
 }
 
 // export async function startstatus(e, 状态, 返回状态) {
@@ -433,7 +417,8 @@ export async function msToTime(duration: number): Promise<string> {
     return `${paddedHours}时${paddedMinutes}分${paddedSeconds}秒`;
   }
 export async function gettupo(e:AMessage,玩家境界:string,data境界名:string,突破物品:string){
-  let player = await getUserStatus(e,"player")
+  const results:any = await getUserStatus(e);
+  let player =results.player
   const now_level_id = await findIndexByName(player[玩家境界],await _item(1,data境界名)) +1;
   let xx = await _item(1,data境界名)
   const now = xx.find(item => item.name = player[玩家境界]);
@@ -459,7 +444,7 @@ export async function gettupo(e:AMessage,玩家境界:string,data境界名:strin
       player.生命加成+= x.生命加成
       player.闪避加成+= x.闪避加成
       player.生命上限+=x.生命加成
-      await Write_player(1,true,e.user_id,player,"player")
+      await Write_player(e.user_id,player,false,false,false)
       return e.reply(`突破成功,目前境界${x.name}`);
   }
 }
@@ -490,6 +475,41 @@ export const checkNameExists = async (name:string, obj:any) => {
   const names = Object.keys(obj);
   return names.includes(name);
 };
+export function 技能栏(player:any){
+  if (!player || !player.技能栏) {
+      player = player || {}; // 如果player不存在，则创建一个空对象
+      player.技能栏 = {
+        功法技能栏1: '无',
+        功法技能栏2: '无',
+        功法技能栏3: '无',
+        功法技能栏4: '无',
+        功法技能栏5: '无',
+      };
+    }
+}
+async function 随机选择技能(技能栏) {
+  console.log(技能栏);
+  // 从技能栏中过滤出名字中含有"功法技能栏"且对应值不为'无'的技能名
+  const 技能名数组 = Object.entries(技能栏)
+    .filter(([key, value]) => key.includes('功法技能栏') && value !== '无')
+    .map(([key, value]) => value);
+  console.log(技能名数组);
+  if (技能名数组.length === 0) {
+    // 如果没有符合条件的技能，可以添加适当的处理逻辑
+    console.log('没有符合条件的技能');
+    return;
+  }
+
+  // 从过滤后的技能名数组中随机选择一个值
+  const 随机索引 = Math.floor(Math.random() * 技能名数组.length);
+  const 随机技能名 = 技能名数组[随机索引];
+  console.log('随机选择的技能:', 随机技能名);
+  console.log(随机技能名);
+  
+  return 随机技能名;
+  
+}
+
 //战力计算
 export async function player_zhanli(player:any){
   const attackBonus = player["攻击加成"];
@@ -506,34 +526,41 @@ export async function player_zhandou(attacker:any, defender:any) {
   let B_damage = 0;
   // 战斗循环
   while (attacker.当前生命 > 0 && defender.当前生命 > 0) {
-    if (huihe === 50) {
-      // 达到9999回合时，进行随机选择失败者
+    if (huihe === 100) {
       let winner = Math.random() < 0.5 ? attacker : defender; // 随机选择攻击者或防守者作为失败者
-      msg.push(`达到9999回合，随机选择${winner.name}失败`);
-      // 结束战斗
+      msg.push(`达到100回合，随机选择${winner.name}失败`);
       break;
     }
       try {
-          // 计算攻击者对防守者造成的伤害
-          let shanghaiA = await calculateDamage(attacker, defender);
-          defender.当前生命 -= shanghaiA;
-          A_damage += shanghaiA;
-          msg.push(`${attacker.name}对${defender.name}造成了${shanghaiA}点伤害`);
-          // 判断防守者是否被击败
-          if (defender.当前生命 <= 0) {
-              msg.push(`${defender.name}战败了`);
-              break;
-          }
+        let A_技能_name = await 随机选择技能(attacker.技能栏);
+        let B_技能_name = await 随机选择技能(defender.技能栏);
+        let A_技能:any = await 功法列表.findOne({where:{name:A_技能_name},raw:true});
+        let B_技能:any = await 功法列表.findOne({where:{name:B_技能_name},raw:true});
+        msg.push(`${attacker.name}${A_技能.zhandou}造成${A_技能.功效.攻击加成}伤害`)
+        defender.当前生命 -= A_技能.功效.攻击加成;
+        A_damage += A_技能.攻击加成;
+        msg.push(`${defender.name}${B_技能.zhandou}造成${B_技能.功效.攻击加成}伤害`)
+        B_damage += B_技能.功效.攻击加成
+        // 计算攻击者对防守者造成的伤害
+        let shanghaiA = await calculateDamage(attacker, defender);
+        defender.当前生命 -= shanghaiA;
+        A_damage += shanghaiA;
+        msg.push(`${attacker.name}对${defender.name}造成了${shanghaiA}点伤害`);
+        // 判断防守者是否被击败
+        if (defender.当前生命 <= 0) {
+            msg.push(`${defender.name}战败了`);
+            break;
+        }
           // 计算防守者对攻击者造成的伤害
-          let shanghaiB = await calculateDamage(defender, attacker);
-          attacker.当前生命 -= shanghaiB;
-          B_damage += shanghaiB;
-          msg.push(`${defender.name}对${attacker.name}造成了${shanghaiB}点伤害`);
-          // 判断攻击者是否被击败
-          if (attacker.当前生命 <= 0) {
-              msg.push(`${attacker.name}了`);
-              break;
-          }
+        let shanghaiB = await calculateDamage(defender, attacker);
+        attacker.当前生命 -= shanghaiB;
+        B_damage += shanghaiB;
+        msg.push(`${defender.name}对${attacker.name}造成了${shanghaiB}点伤害`);
+        // 判断攻击者是否被击败
+        if (attacker.当前生命 <= 0) {
+            msg.push(`${attacker.name}[${attacker.uid}]了`);
+            break;
+        }
       } catch (error) {
           // 处理伤害计算出现的错误
           msg.push('伤害计算出现错误：' + error.message);
@@ -552,17 +579,15 @@ export async function player_zhandou(attacker:any, defender:any) {
       B_damage: B_damage
   };
 }
-async function calculateDamage(attacker, defender) {
+async function calculateDamage(attacker:any, defender:any) {
   let shanghai = attacker.攻击加成 - defender.防御加成;
   if (shanghai < 0) {
     shanghai = 0;
   }
-  
   // 考虑暴击
   if (Math.random() <= attacker.暴击加成) {
     shanghai *= attacker.爆伤加成;
   }
-  
   // 考虑闪避
   if (Math.random() <= defender.闪避加成) {
     shanghai = 0;
@@ -570,7 +595,6 @@ async function calculateDamage(attacker, defender) {
   console.log(shanghai);
   return shanghai;
 }
-
 //判断有没有造成暴击伤害
 export async function panbaoji(攻击力:number,对方防御力:number,计算过后函数baoji的值:number){
   let shanghai =攻击力- 对方防御力;
@@ -590,33 +614,49 @@ export async function baoji(暴击率:number,暴击伤害:number,攻击力:numbe
   }
 }
 export async function Add_bag_thing(usr_qq:string, thing_name:string,数量:number,thing:any) {
-  let bag = await Read_player(1,true, usr_qq, "bag");
+  let results = await Read_player(1, usr_qq);
+  let bag = results.bag
   let thing_type = thing.type;
-  if(!bag.已学习功法) bag.已学习功法 = [];
-  if(thing === "无"){
-     let x;
-     if(thing.type == "道具") x = await Read_json(3,'/item/道具列表.json');
-     if(thing.type == "功法") x = await Read_json(3,'/item/功法列表.json')
-     thing =x.find(item => item.name === thing_name);
+  if (thing === "无") {
+    let x;
+    const typeMap = {
+      道具: async () => (x = await 道具列表.findAll({ raw: true })),
+      功法: async () => (x = await 功法列表.findAll({ raw: true })),
+      已学习功法: async () => (x = await 功法列表.findAll({ raw: true })),
+      default: () => (x = []),
+    };
+    typeMap[thing.type]();
+    thing = x.find(item => item.name === thing_name);
   }
-  let bag_thing;
-  if(thing_type == "功法") {
-    thing_type = 数量 < 0 ? '功法' : '已学习功法'
-    bag_thing = bag[thing_type].find(item => item.name === thing_name);
-  }else bag_thing = bag[thing_type].find(item => item.name === thing_name);
-  if (!bag_thing){
+  let bag_thing = bag[thing_type].find(item => item.name === thing_name);
+  const boolean1 = thing_type == "已学习功法"
+  if(boolean1) 数量 = -数量 //转为正数
+  console.log(数量);
+  if (!bag_thing){                            
      bag[thing_type].push({
       ...thing,
       数量: 数量
     });
     console.log('新增加成功');
-  } else {
-   bag_thing.数量 += 数量;
-   if(bag_thing.数量 == 0)  bag[thing_type] = bag[thing_type].filter(item => item.name !== bag_thing.name);
-   console.log('增加成功');
+  }else{
+    let x = await updateItemQuantity(bag[thing_type], thing_name, 数量);
+    if(x) bag[thing_type] = x;
   }
-  await Write_player(1,true, usr_qq, bag, "bag");
+   if(boolean1){
+    let x = await updateItemQuantity(bag.功法, thing_name, -数量);
+    if(x) bag.功法 = x;
+   }
+  console.log('增加成功');
+  await Write_player(usr_qq,false,bag,false,false);
 }
+export function updateItemQuantity(itemList: any, itemName: string, quantity: number) {
+  const x = itemList.find(item => item.name == itemName);
+  x.数量 += quantity;
+  if(x.数量<=0){
+    return itemList.filter(item => item.name != itemName);
+  }
+  return false;  
+}                                                                                                                                                                                                                                                                       
 //选出胜利者
 export async function determineWinner(msg: string[], A_player_name: string, B_player_name: string): Promise<string | null> {
   const winner: string | null = (() => {
@@ -634,9 +674,9 @@ export async function getB_qq(e:AMessage,string:string){
   if(!at)return 0;
   console.log(at.id);
   if (!at) return false;
-  if (!await existplayer(1, at.id, 'player')) return 1;
+  if (!await existplayer(1, at.id)) return false;
   if(string == "id")return at.id;
-  return await Read_player(1,true,at.id,string);
+  return await Read_player(1,at.id)
 }
 // 辅助函数
 export async function createPlayerObject(player:any) {
@@ -648,6 +688,7 @@ export async function createPlayerObject(player:any) {
     闪避加成: player.闪避加成,
     防御加成: player.防御加成,
     当前生命: player.当前生命,
+    技能栏: player.技能栏
   };
 }
 /**
@@ -695,73 +736,94 @@ export async function extractAttributesWithPropertyOne(dataArray:any) {
   }
   return result;
 }
-export async function Read_player2(num,usr_qq,string){
-  let playerPath
-  if(num === 2){
-    playerPath = `${type[num]}/${usr_qq}-${string}.json`;
-  }else if(num === 1){
-    playerPath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
-  }
-  const dir = path.join(playerPath);
-  try {
-    const playerData = fs.readFileSync(dir, 'utf8');
-    const player = JSON.parse(playerData);
-    return player;                
-  } catch (err) {
-    console.log(err);
-    return 'error';
-  }
+// export async function Read_player2(num,usr_qq,string){
+//   let playerPath
+//   if(num === 2){
+//     playerPath = `${type[num]}/${usr_qq}-${string}.json`;
+//   }else if(num === 1){
+//     playerPath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
+//   }
+//   const dir = path.join(playerPath);
+//   try {
+//     const playerData = fs.readFileSync(dir, 'utf8');
+//     const player = JSON.parse(playerData);
+//     return player;                
+//   } catch (err) {
+//     console.log(err);
+//     return 'error';
+//   }
+// }
+
+// export async function Write_json_path(path1:string,json:String) {
+//   const dir = path.join(DirPath,path1);
+//   const newJson = JSON.stringify(json, null, '\t');
+//   try {
+//       fs.writeFileSync(dir, newJson, 'utf8');
+//       console.log('写入成功');
+//   } catch (err) {
+//       console.log('写入失败', err);
+//   }
+// }
+// export async function (path1:string) {
+//   const dir = path.join(DirPath,path1);
+//   try {
+//     const playerData = fs.readFileSync(dir, 'utf8');
+//     const player = JSON.parse(playerData);
+//     return player;
+//   } catch (err) {
+//     console.log(err);
+//     return 'error';
+//   }
+// }
+export async function wanjietang_thing(){
+	const [items, skills]:any = await Promise.all([
+		道具列表.findAll({raw:true}),
+		功法列表.findAll({raw:true})
+	]);
+	const [x, xx] = await Promise.all([
+		await extractAttributesWithPropertyOne(items),
+		await extractAttributesWithPropertyOne(skills)
+	]);
+	const combinedArray:any[] = x.concat(xx);
+	return combinedArray
 }
-export async function generateUID(e: AMessage): Promise<string> {
-  const users = await getAllSubdirectories();
-  let counter = 0;
-  const timestamp: number = new Date().getTime();
-  let uid: string;
-  while (true) {
-    uid = generateRandomUID(11);
-    let isDuplicate = false;
-    for (const user of users) {
-      const player = await Read_player(1,false,user, "player");
-      if (player.id === uid) {
-        isDuplicate = true;
-        break;
-      }
-    }
-    if (!isDuplicate) {
-      break;
-    }
-    // 避免死循环,如果已经遍历了所有用户仍无法生成唯一的UID,则抛出错误
-    if (counter === 9999999) console.log("无法生成唯一的UID");
-    counter++;
-  }
-  return uid;
+export async function findThings(name) {
+  const itemInProps = await findInList(name, 道具列表);
+  if (itemInProps.one_item) return itemInProps;
+  const itemInSkills = await findInList(name, 功法列表);
+  if(itemInSkills.one_item)return itemInSkills;
+  return false;
 }
 
-export function generateRandomUID(length: number){
-  let uid = "";
-  for (let i = 0; i < length; i++) {
-    uid += Math.floor(Math.random() * 10);
-  }
-  return uid;
-}
-export async function Write_json_path(path1:string,json:String) {
-  const dir = path.join(DirPath,path1);
-  const newJson = JSON.stringify(json, null, '\t');
-  try {
-      fs.writeFileSync(dir, newJson, 'utf8');
-      console.log('写入成功');
-  } catch (err) {
-      console.log('写入失败', err);
+async function findInList(name, list) {
+  const items = await list.findAll({ raw: true });
+  return {
+      all_item:items,
+      one_item: items.find(item => item.name === name),
   }
 }
-export async function Read_json_path(path1:string) {
-  const dir = path.join(DirPath,path1);
-  try {
-    const playerData = fs.readFileSync(dir, 'utf8');
-    const player = JSON.parse(playerData);
-    return player;
-  } catch (err) {
-    console.log(err);
-    return 'error';
-  }
-}
+export const config = {
+  attackBonus: 200,
+  defenseBonus: 200,
+  criticalBonus: 0.1,
+  damageBonus: 0.09,
+  healthBonus: 100,
+  dodgeBonus: 0.01,
+  currentHealth: 1000
+};
+export const createCertificationRobot = (num) => ({
+  name: num +'_认证机器人',
+  攻击加成: config.attackBonus * num,
+  防御加成: config.defenseBonus * num,
+  暴击加成: config.criticalBonus * num,
+  爆伤加成: config.damageBonus * num,
+  生命加成: config.healthBonus * num,
+  闪避加成: config.dodgeBonus * num,
+  当前生命: config.currentHealth * num,
+});
+export const handleBattle = async (player, robot) => {
+  const msg = await player_zhandou(player, robot);
+  console.log(player.name);
+  const name = await determineWinner(msg.result, player.name, robot.name);
+  return { name, damage: msg.A_damage };
+};

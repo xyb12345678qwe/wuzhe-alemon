@@ -1,6 +1,7 @@
-import { plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,Read_json_path,oImages,getidlist,Read_player2,allzongmen,Read_json,Write_json} from "../../api";
-export class chanenl_id extends plugin {
+import { APlugin ,AMessage,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,oImages,Read_json,Write_json} from "../../api";
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid} from '../../model/gameapi';
+export class chanenl_id extends APlugin  {
     constructor() {
         super({
             /** 功能名称 */
@@ -21,7 +22,7 @@ export class chanenl_id extends plugin {
         async chanenl_id(e:AMessage):Promise<boolean>{
             if(!e.isMaster)return false;
             const id = e.channel_id;
-            let shezhi = await Read_json(2,'');
+            let shezhi = await Read_json(2);
             let chanenl_id = shezhi.find(item => item.type == "chanenl_id");
             chanenl_id.num = id;
             await Write_json(2,shezhi)

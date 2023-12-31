@@ -1,6 +1,7 @@
-import {plugin,AMessage ,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item, Read_json, getUserStatus, Read_playerData, getString2, oImages} from '../../api'
-export class liesha extends plugin {
+import {APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item, Read_json, getUserStatus, getString2, oImages} from '../../api'
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';  
+export class liesha extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -27,7 +28,7 @@ export class liesha extends plugin {
 		});
 	}
     async x(e:AMessage):Promise<boolean>{
-        let x = await Read_json(4,'/猎杀妖兽地点.json')
+        let x:any = await 猎杀妖兽地点.findAll({raw:true})
         console.log(x);
         let get_data={x}
         const img = await oImages(`/resources/html/lieyao/lieyao.html`,get_data)
@@ -37,14 +38,14 @@ export class liesha extends plugin {
     }
     async qw(e:AMessage):Promise<boolean>{
         const usr_qq = e.user_id;
-        if (!await existplayer(1, usr_qq, 'player')) return false;
-        let results = await Read_playerData(usr_qq,true,false,false,true,true,'/猎杀妖兽地点.json')
+        if (!await existplayer(1, usr_qq)) return false;
+        let results = await Read_player(1,usr_qq)
         const name = e.msg.replace(/(\/|#)前往猎妖/, "").trim();
         let status = results.status;
         let player = results.player;
         const xxx = await getNonZeroKeys(status);
         if(xxx)return e.reply(`你正在${xxx}中`);
-        let x = results[`/猎杀妖兽地点.json`]
+        let x:any = await 猎杀妖兽地点.findAll({raw:true})
         x =x.find(item => item.name === name);
         if(!x)return e.reply(`没有这个妖兽`);
         if(await getstring(player.武者境界,"F阶")) return e.reply(`才f阶就来猎杀妖兽？`);
@@ -52,13 +53,13 @@ export class liesha extends plugin {
         const now = Date.now();
         status.猎妖 = now;
         player.猎妖目标 = name;
-        await Write_playerData(usr_qq,player,"无","无",status,"无","无",true)
+        await Write_player(usr_qq,player,false,false,status)
         return e.reply(`开始猎杀妖兽,5分钟后归来`);
     }
     async xx(e:AMessage):Promise<boolean>{
         const usr_qq = e.user_id;
-        if (!await existplayer(1, usr_qq, 'player')) return false;
-        let results = await Read_playerData(usr_qq,true,false,false,true,true,'/猎杀妖兽地点.json',"/道具列表.json")
+        if (!await existplayer(1, usr_qq)) return false;
+        let results = await Read_player(1,usr_qq)
         let status = results.status
         let player = results.player
         const activeStatus = await getNonZeroKeys(status);
@@ -71,10 +72,10 @@ export class liesha extends plugin {
         e.reply(`出现错误，存档力的猎妖目标为无，自动设置为金钱豹`);
         player.猎妖目标 = "金钱豹";
         }
-        let huntingLocation = results[`/猎杀妖兽地点.json`]
-        let daojulist = results[`/道具列表.json`]
+        let huntingLocation:any = await 猎杀妖兽地点.findAll({raw:true})
+        let daojulist:any = await 道具列表.findAll({raw:true})
         let shezhi = await Read_json(2)
-        if(player.猎妖目标 && player.猎妖目标 !== "无")huntingLocation = huntingLocation.find(item => item.name === player.猎妖目标);
+        if(player.猎妖目标 && player.猎妖目标 !== "无")huntingLocation = huntingLocation.find(item => item.name == player.猎妖目标);
         if (isHunting1) {
             if (time < 5 * 60 * 1000) return e.reply(`时间未到`);
                 const A_player = {
@@ -100,18 +101,49 @@ export class liesha extends plugin {
                 console.log(msg.result);
                 let replyMsg;
                 if (name === player.name) {
-                    const randomIndex = Math.floor(Math.random() * huntingLocation.掉落物.length);
-                    const dropItem = huntingLocation.掉落物[randomIndex];
+                    let dropItem = null;
+                    const random = Math.random();
+                    const dropItems = huntingLocation.掉落物;
+                    const dropItemsLength = dropItems.length;
+                    const cumulativeProbabilities:any = [];
+
+                    let cumulativeProbability = 0;
+                    for (let i = 0; i < dropItemsLength; i++) {
+                    cumulativeProbability += dropItems[i].概率;
+                    cumulativeProbabilities.push(cumulativeProbability);
+                    }
+
+                    const targetProbability = random * cumulativeProbability;
+                    let low = 0;
+                    let high = dropItemsLength - 1;
+
+                    while (low <= high) {
+                    const mid = Math.floor((low + high) / 2);
+                    if (targetProbability <= cumulativeProbabilities[mid]) {
+                        dropItem = dropItems[mid].name;
+                        break;
+                    } else {
+                        low = mid + 1;
+                    }
+                    }
+
+                    if (!dropItem) {
+                    const randomIndex = Math.floor(random * dropItemsLength);
+                    dropItem = dropItems[randomIndex].name;
+                    }
+
+                    if (dropItem) {
                     await Add_bag_thing(usr_qq, dropItem, 1, "无");
                     player.当前生命 -= msg.A_damage;
                     replyMsg = `恭喜你打赢了${huntingLocation.name}，获得${dropItem}*1`;
+                    }
                 } else {
                     player.当前生命 -= msg.A_damage;
                     replyMsg = `恭喜你没打赢了${huntingLocation.name}，获得空气*1`;
                 }
                 status.猎妖 = 0;
                 player.猎妖目标 = "无";
-                await Write_playerData(usr_qq, player, "无", "无", status, "无", "无", true);
+                await Write_player(usr_qq,player,false,false,status);
                 return e.reply(replyMsg);
         }else if(activeStatus == '打工'){
             return await stopstatus(e,`打工`,`金钱`,`元`,10)
@@ -195,7 +227,7 @@ export class liesha extends plugin {
             });
         }
         status[activeStatus] = 0;
-        await Write_playerData(e.user_id, player, "无", "无", status, "无", "无", true);
+        await Write_player(e.user_id, player, false,false, status);
         return true;
         }
     }

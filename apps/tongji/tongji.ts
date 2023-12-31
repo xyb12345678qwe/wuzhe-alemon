@@ -1,6 +1,6 @@
-import {plugin, AMessage, AppName, DirPath,fs,axios,apiUrl} from '../../api'
+import {APlugin , AMessage, AppName, DirPath,fs,axios,apiUrl} from '../../api'
 
-export class wuzhe_tongji extends plugin {
+export class wuzhe_tongji extends APlugin  {
   constructor() {
     super({
       rule: [

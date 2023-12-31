@@ -1,7 +1,7 @@
-import { plugin,AMessage,Show,puppeteer,base,AppName, DirPath } from '../../api'
+import { APlugin ,AMessage,Show,puppeteer,base,AppName, DirPath } from '../../api'
 import { exec } from 'child_process'
 
-export class admin extends plugin {
+export class admin extends APlugin  {
   constructor() {
     super({
       name: '管理|更新插件',

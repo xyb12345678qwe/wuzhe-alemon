@@ -1,7 +1,7 @@
-import {plugin,AMessage,Show,puppeteer,existplayer,Read_player,Write_player,Write_playerData,getlingqi ,findIndexByName,Strand,_item,pic,Read_yaml,generateUID,Read_json_path,Write_json_path ,Write_json,getidlist,oImages, Read_json} from '../../api'
-
+import {plugin ,AMessage,Show,puppeteer,findIndexByName,Strand,_item,pic,Read_yaml,Write_json,oImages, Read_json} from '../../api'
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid} from '../../model/gameapi';
 let shezhi ={}
-export class start extends plugin {
+export class start extends plugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -12,14 +12,6 @@ export class start extends plugin {
 			/** 优先级，数字越小等级越高 */
 			priority: 600,
 			rule: [
-        {
-			    reg: /^(#|\/)?解除账号绑定id.*$/,
-			    fnc: 'jianid',
-		    },
-         {
-			    reg: /^(#|\/)?添加账号绑定id.*$/,
-			    fnc: 'addid',
-		    },
         {
 			    reg: /^(#|\/)?查看本平台id$/,
 			    fnc: 'id',
@@ -49,7 +41,7 @@ export class start extends plugin {
 	    		fnc: 'information',
 	    	},
         {
-          reg: /^(#|\/)?武者帮助$/,
+          reg: /^(#|\/)?(武者帮助|帮助)$/,
           fnc: 'help',
         },
          {
@@ -69,179 +61,97 @@ export class start extends plugin {
           fnc: 'xuan',
         },
         {
-          reg: /^(#|\/)?自废命脉.*$/,
-          fnc: 'fei',
-        },
+			    reg: /^(#|\/)?连接uid.*$/,
+			    fnc: 'lianid',
+		    },
         {
-			    reg: /^(#|\/)?解除账号绑定$/,
-			    fnc: 'jiechuzhanghao',
+			    reg: /^(#|\/)?断开uid$/,
+			    fnc: 'duanid',
+		    },
+        {
+			    reg: /^(#|\/)?添加uid可连接qq.*$/,
+			    fnc: 'add',
 		    },
 			],
 		});
 	}
-  async jiechuzhanghao(e:AMessage):Promise<boolean>{
+  async add(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    const json = await Read_json(3,`/player.json`);
-    let list = json.find(item => item.绑定账号.includes(usr_qq));
-    list.绑定账号[usr_qq] = ''
-    await Write_json(3,json,`/player.json`)
-    return true;
+    if (!await existplayer(1, usr_qq)) return e.reply(`请先连接uid`);
+    const name = e.msg.replace(/(\/|#)?添加uid可连接qq/, "").trim();
+    const id:any = await finduid(usr_qq);
+    const id2:any = await finduid(name);
+    if(id2) return e.reply("对方已有绑定账号")
+    if(!id.允许绑定账号.includes(usr_qq))id.允许绑定账号.push(usr_qq);
+    return e.reply(`添加成功 `)
+  } 
+  async lianid(e: AMessage): Promise<boolean>{
+    const usr_qq =e.user_id;
+    if (await existplayer(1, usr_qq)) return false;
+    const name = e.msg.replace(/(\/|#)?连接uid/, "").trim();
+    const id: any = await user_id.findOne({ where: { uid: name }, raw: true });
+    if(!id.允许绑定账号.includes(usr_qq)) return e.reply(`你无资格绑定此账号`)
+    id.绑定账号.push(usr_qq)
+    user_id.upsert({ uid: id.uid,...id});
+    return e.reply(`连接成功  `)
   }
-  async fei(e:AMessage):Promise<boolean>{
+  async duanid(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    const json = await Read_json(3,`/player.json`);
-    let list = json.find(item => item.绑定账号.includes(usr_qq));
-    if(!list.主账号.includes(usr_qq))e.reply(`无权干涉`)
-    list = ''
-    await Write_json(3,json,`/player.json`)
-    return true;
-  }
-  async jianid(e: AMessage): Promise<boolean>{
-    const usr_qq =e.user_id;
-    console.log(!await existplayer(1, usr_qq, 'player'));
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    const name = e.msg.replace(/(\/|#)解除账号绑定id/, "").trim();
-    const json = await Read_json(3,`/player.json`);
-    const list = json.find(item => item.绑定账号.includes(usr_qq));
-    if(!list.主账号.includes(usr_qq))e.reply(`无权干涉`)
-    if(!list.绑定账号.includes(name))return e.reply(`无此id`)
-    list.绑定账号[name] =''
-    await Write_json(3,json,`/player.json`)
-    e.reply(`解除成功`)
-    return true
-  }
-  async addid(e: AMessage): Promise<boolean>{
-    const usr_qq =e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    const name = e.msg.replace(/(\/|#)添加账号绑定id/, "").trim();
-    const json = await Read_json(3,`/player.json`);
-    const list = json.find(item => item.绑定账号.includes(usr_qq));
-    if(!list.主账号.includes(usr_qq))e.reply(`无权干涉`)
-    if(list.绑定账号.includes(name))return e.reply(`已有此id`)
-    if(json.find(item => item.绑定账号.includes(name))) return e.reply(`对方已有账号`)
-    list.绑定账号.push(name)
-    await Write_json(3,json,`/player.json`)
-    e.reply(`添加成功`)
-    return true
+    if (!await existplayer(1, usr_qq)) return false;
+    const id:any = await finduid(usr_qq);
+    id.绑定账号 = id.绑定账号.filter(item => item !== usr_qq);
+    user_id.upsert({ uid: id.uid,...id});
+    return e.reply(`断开成功  `)
   }
   async id(e: AMessage): Promise<boolean>{
     return e.reply(e.user_id)
   }
   async start(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
-    if (await existplayer(1, usr_qq, 'player')) return this.information(e);
+    if (await existplayer(1, usr_qq)) return this.information(e);
     e.reply(`请输入你的性别`);
     this.setContext('1')
     return false;
   }
   async 1(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
-    if(this.e.msg =="男") shezhi[usr_qq] ="男"
-    else if(this.e.msg =="女")shezhi[usr_qq] ="女"
-    else {
-      e.reply(`性别错误自动选择男`)
-      shezhi[usr_qq] ={性别:"男"}
-    } 
+    !/男|女/.test(this.e.msg) && e.reply('输入错误，自动选择男')
+    shezhi[usr_qq] = this.e.msg || '男'
     this.finish('1')
     this.setContext('2')
     e.reply(`请输入你的名字`)
     return false;
   }
-  async 2(e: AMessage): Promise<boolean>{
+  async 2(e: AMessage){
     const usr_qq = e.user_id;
-    let new_player:any={
-      id:await generateUID(e),
-      name: this.e.msg,
-      性别:shezhi[usr_qq].性别,
-      宣言:"无",
-      年龄:0,
-      语言包:"无",
-      武者境界: "F阶低级武者",
-	    体魄境界: "体魄一重天",
-	    灵魂境界: "灵魂境界一重天",
-      灵气:0,
-      体魄力量:0,
-      灵魂力量:0,
-      攻击加成:100,
-      防御加成:100,
-      暴击加成:0.01,
-      爆伤加成:0.01,
-      生命加成:100,
-      闪避加成:0,
-      当前生命:1000,
-      生命上限:1000,
-      金钱:1000,
-      本命灵器:"无",
-      武者认证:"无",
-      机器验证:[],
-    }
-    let new_bag:any={
-      道具:[],
-      功法:[],
-      "已学习功法": []
-    }
-    let new_equiment:any={
-      武器:"无",
-      胸甲:"无",
-      腿甲:"无",
-      法宝:"无",
-    }
-    let new_status:any={
-      "打工":0,
-      "修炼": 0,
-	    "锻炼": 0,
-	    "修炼灵魂": 0,
-      "猎杀妖兽":0,
-      "猎妖":0,
-      "采药":0
-    }
-    
-    e.reply(`开始觉醒灵器`)
-    new_player.本命灵器= await getlingqi(e)
-    if(new_player.本命灵器){
-    new_player.攻击加成+= new_player.本命灵器.攻击加成
-    new_player.防御加成+= new_player.本命灵器.防御加成
-    new_player.暴击加成+= new_player.本命灵器.暴击加成
-    new_player.爆伤加成+= new_player.本命灵器.爆伤加成
-    new_player.生命加成+= new_player.本命灵器.生命加成
-    new_player.闪避加成+= new_player.本命灵器.闪避加成
-    }
-    const json = await Read_json(3,`/player.json`);
-    let list ={
-      id:new_player.id,
-      绑定账号:[usr_qq],
-      主账号:[usr_qq],
-    }
-
-    json.push(list)
-    await Write_json(3,json,`/player.json`)
-    await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无",true);
+    console.log(shezhi[usr_qq]);
+    await create_player(e,usr_qq,this.e.msg,shezhi[usr_qq])
     this.finish('2')
-    return false;
+    e.reply(`创建存档成功`)
   }
   async xuan(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    const name = e.msg.replace(/(\/|#)修改宣言/, "").trim();
-    let player= await Read_player(1,true,usr_qq,"player")
+    if (!await existplayer(1, usr_qq)) return false;
+    const name = e.msg.replace(/(\/|#)?修改宣言/, "").trim();
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     player.宣言 =name
-    await Write_player(1,true,usr_qq,player,"player")
+    await Write_player(usr_qq,player,false,false,false)
     return e.reply(`修改成功`)
   }
   async year(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    let name = parseInt(e.msg.replace(/(\/|#)设置年龄/, "").trim());
-    let player = await Read_player(1,true, usr_qq, "player");
+    if (!await existplayer(1, usr_qq)) return false;
+    let name = parseInt(e.msg.replace(/(\/|#)?设置年龄/, "").trim());
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     let rand = Math.floor(Math.random() * 10000); // 生成一个四位数的随机验证码
     console.log(player.机器验证);
     if (player.机器验证.length !== 0) return e.reply(`请先填写验证码,验证码为${player.机器验证[0]}`);
     if (name <= 20) return e.reply(`不信请重新使用指令输入年龄`);
     player.机器验证.push(rand);
     player.机器验证.push(name)
-    await Write_player(1,true, usr_qq, player, "player");
+    await Write_player(usr_qq,player,false,false,false)
     let replyMsg = "";
     if (name <= 40) replyMsg = `设置完毕, 我怀疑你是机器人, 请用指令输入验证码, 验证码为${rand}`;
     else if (name <= 100) replyMsg = `设置完毕, 老baby, 等等, 我怀疑你是机械老baby, 请用填写机器验证的指令填写验证, 验证码${rand}`;
@@ -252,14 +162,15 @@ export class start extends plugin {
 }
   async yan(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
+    if (!await existplayer(1, usr_qq)) return false;
     let name = parseInt(e.msg.replace(/(\/|#)机器验证/, "").trim());
-    let player = await Read_player(1,true, usr_qq, "player");
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     if(player.机器验证.length === 0) return e.reply(`没有验证码`);
     if(player.机器验证[0] !== name) return e.reply(`验证码错误`);
     player.机器验证 =[]
     player.年龄 = player.机器验证[1]
-    await Write_player(1,true, usr_qq, player, "player");
+    await Write_player(usr_qq,player,false,false,false)
     return e.reply(`验证码通过`);
   }
   async help(e:AMessage){
@@ -270,60 +181,13 @@ export class start extends plugin {
   }
   async bt(e:AMessage): Promise<boolean>{
     return e.reply(`暂时废弃`)
-  //   const usr_qq = e.user_id;
-  //   if (await existplayer(1, usr_qq, 'player')) {return this.information(e)}
-  //   let new_player={
-  //     id:"usr_qq",
-  //     name:"无名氏",
-  //     性别:"无",
-  //     宣言:"无",
-  //     年龄:0,
-  //     语言包:"无",
-  //     武者境界: "F阶低级武者",
-	//     体魄境界: "体魄一重天",
-	//     灵魂境界: "灵魂境界一重天",
-  //     灵气:0,
-  //     体魄力量:0,
-  //     灵魂力量:0,
-  //     攻击加成:100,
-  //     防御加成:100,
-  //     暴击加成:0.01,
-  //     爆伤加成:0.01,
-  //     生命加成:100,
-  //     闪避加成:0,
-  //     当前生命:1000,
-  //     生命上限:1000,
-  //     金钱:1000,
-  //     本命灵器:"无",
-  //     机器验证:[]
-
-  //   }
-  //   let new_bag={
-  //     道具:[],
-  //     功法:[]
-  //   }
-  //   let new_equiment={
-  //     武器:"无",
-  //     胸甲:"无",
-  //     腿甲:"无",
-  //     法宝:"无",
-  //   }
-  //   let new_status={
-  //     打工:0,
-  //     "修炼": 0,
-	//     "锻炼": 0,
-	//     "修炼灵魂": 0,
-  //     "猎杀妖兽":0,
-  //     "猎妖":0
-  //   }
-  //   new_player.id = usr_qq;
-  //   await Write_playerData(usr_qq,new_player,new_bag,new_equiment,new_status,"无","无",false);
-  //   return e.reply(`创建成功，请使用别的指令完善存档`);
+ 
   }
   async j(e:AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
-    let player= await Read_player(1,true,usr_qq,"player")
+    if (!await existplayer(1, usr_qq)) return false;
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     if(!player.本命灵器)player.本命灵器="无";
     if(player.本命灵器 !="无") return e.reply(`你已觉醒过了本名灵器`)
     e.reply(`开始觉醒灵器`)
@@ -334,42 +198,45 @@ export class start extends plugin {
     player.爆伤加成+= player.本命灵器.爆伤加成
     player.生命加成+= player.本命灵器.生命加成
     player.闪避加成+= player.本命灵器.闪避加成
-    await Write_player(1,true,usr_qq,player,"player")
+    await Write_player(usr_qq,player,false,false,false)
     return false;
   }
   async gx(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
+    if (!await existplayer(1, usr_qq)) return false;
     const name = e.msg.replace(/(\/|#)改姓/, "").trim();
-    let player= await Read_player(1,true,usr_qq,"player")
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     if(player.性别 === name) return e.reply(`你已经是这个姓了`)
     player.性别 =name
-    await Write_player(1,true,usr_qq,player,"player")
+    await Write_player(usr_qq,player,false,false,false)
     return e.reply(`修改成功`)
   }
   async gm(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return false;
+    if (!await existplayer(1, usr_qq)) return false;
     const name = e.msg.replace(/(\/|#)改名/, "").trim();
-    let player= await Read_player(1,true,usr_qq,"player")
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     if(player.name === name) return e.reply(`名字不能和原来的相同`)
     player.name = name
-    await Write_player(1,true,usr_qq,player,"player")
+    await Write_player(usr_qq,player,false,false,false)
     return e.reply(`修改成功`)
   }
   async information(e: AMessage): Promise<boolean>{
     const usr_qq: string = e.user_id;
-    if (!(await existplayer(1, usr_qq, 'player'))) return false;
-
-    let player:any = await Read_player(1,true, usr_qq, "player");
+    if (!await existplayer(1, usr_qq)) return false;
+    let result = await Read_player(1,usr_qq);
+    let player:any = result.player;
+    console.log(player);
+    
     let rank_wuzhe: string = player.武者境界;
-
-    let expmax_wuzhe = await _item(1,"武者境界");
+    let expmax_wuzhe:any =await 武者境界.findAll({raw:true});
     expmax_wuzhe = expmax_wuzhe.find(item => item.name === rank_wuzhe)?.灵气;
     let rank_tipo: any = player.体魄境界;
-    let expmax_tipo= await _item(1,'体魄境界')
+    let expmax_tipo:any =await 体魄境界.findAll({raw:true});
     expmax_tipo = expmax_tipo.find(item => item.name === rank_tipo)?.体魄力量;
-    let x =await _item(1,'灵魂境界')
+    let x:any =await 灵魂境界.findAll({raw:true});
     let rank_hun: any = player.灵魂境界;
     let expmax_hun = x.find(item => item.name === rank_hun)?.灵魂力量;
 
@@ -378,7 +245,13 @@ export class start extends plugin {
     let strand_tipo: any = await Strand(player.体魄力量, expmax_tipo);
     let strand_hun: any = await Strand(player.灵魂力量, expmax_hun);
 
-    let equipment: any = await Read_player(1,true, usr_qq, "equipment")
+    let equipment: any = result.equipment;
+    console.log(player);
+    // console.log(mainWeapon.id);
+    
+    // console.log(mainWeapon);
+    
+    console.log(equipment);
     let get_data: {
     name: string;
     宣言: string;
@@ -410,15 +283,18 @@ export class start extends plugin {
     strand_hp,
     equipment,
     };
-
-  await pic(e, get_data, `get_playerData`)
+  await Write_player(usr_qq,player,false,false,false);
+  const img = await oImages('/resources/html/player/player.html',get_data)
+  if(img) return e.reply(img)
+  // await pic(e, get_data, `get_playerData`)
   return false;
   }
 
   async my(e: AMessage){
     const usr_qq = e.user_id;
-    if (!await existplayer(1, usr_qq, 'player')) return;
-    let player = await Read_player(1,true, usr_qq, "player")
+    if (!await existplayer(1, usr_qq)) return;
+    let result = await Read_player(1,usr_qq);
+    let player = result.player;
     let lingqi = player.本命灵器
     let x = player.本命灵器.品级
     let 颜色;

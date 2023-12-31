@@ -1,6 +1,7 @@
-import { Show,plugin,AMessage,existplayer,Read_player,Write_player,Write_playerData,getlingqi,isNotNull,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+import { Show,APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item, Read_json } from "../../api";
-export class liandan extends plugin {
+import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方} from '../../model/gameapi';   
+export class liandan extends APlugin  {
 	constructor() {
 		super({
 			/** 功能名称 */
@@ -27,12 +28,14 @@ export class liandan extends plugin {
 		});
 	}
     async liandan(e:AMessage):Promise<boolean>{
-        if (!await existplayer(1, e.user_id, 'player')) return false;
+        if (!await existplayer(1, e.user_id)) return false;
         const [danName, num] = e.msg.replace(/(\/|#)炼丹/, "").trim().split("*").map(code => code.trim());
-        const danList = (await Read_json(4, "/丹方.json")).find(item => item.name === danName);
-        const itemList = await Read_json(4, "/道具列表.json");
+        let danList:any = await 丹方.findAll({raw:true});
+        danList = danList.find(item=> item.name === danName);
+        const itemList:any = await 道具列表.findAll({raw:true})
         if (!danList || !num) return false;
-        const userBag = await Read_player(1, true, e.user_id, "bag");
+        const results =  await Read_player(1, e.user_id);
+        const userBag =results.bag;
         const requiredMaterials = danList.材料.map(({ name, 数量 }) => ({ name, 数量: 数量 * Number(num) }));
         const errorMessages:string[] = [];
         function checkMaterialAvailability(material) {
@@ -52,13 +55,13 @@ export class liandan extends plugin {
         e.reply(`炼丹成功, 获得${danName}*${num}`);
         return false;
     }
-    async check(e:AMessage):Promise<boolean>{
-        const danList = await Read_json(4, "/丹方.json");
-        const msg = danList.map(danfang => danfang.name);
-        return e.reply(msg.join(''));
-    }
+    async check(e: AMessage): Promise<boolean> {
+        const danList: any = await 丹方.findAll({ raw: true });
+        const msg = danList.map((danfang) => danfang.name);
+        return e.reply(msg.join('\r'));
+      }
     async check2(e:AMessage):Promise<boolean>{
-        const danList = await Read_json(4, "/丹方.json");
+        const danList:any = await 丹方.findAll({raw:true})
         const [danName]= e.msg.replace(/(\/|#)查看丹方/, "").trim().split("*").map(code => code.trim());
         const danfang = danList.find(item => item.name == danName);
         if(!danfang) return e.reply(`没有这个丹方`)
