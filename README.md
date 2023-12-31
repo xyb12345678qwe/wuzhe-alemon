@@ -1,4 +1,4 @@
-# 武者文游
+# 武者文游-alemon
 
  
 ### 介绍
@@ -15,23 +15,26 @@
 ````
 git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git ./plugins/wuzhe-plugin-alemon/
 
-npm i md5
+
 npm i js-yaml
 
 ````
 
 ### 使用说明
 
-请先配置数据库mysql,地址`plugin/wuzhe-plugin-alemon/db/mysql`里配置mysql个项数据
+请先配置数据库mysql,地址`plugin/wuzhe-plugin-alemon/db/mysql`里配置mysql个项数据,配置完后导入提供的sql文件
+
+![输入图片说明](image.png)
+
+sql文件:
+![输入图片说明](image2.png)
 
 请安装插件后对机器人输入`#武者帮助`，查看可用功能
 
 
-
-
 ### 交流群
 
-QQ群：无
+QQ群：869400987
 
 
 ### 作者相关
