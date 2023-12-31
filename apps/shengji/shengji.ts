@@ -28,9 +28,22 @@ export class shengji extends APlugin  {
             const lingqi = player.本命灵器;
             const exp = lingqi.等级*1000;
             if(lingqi.exp < exp) return e.reply(`经验不足`) ;
+            if(lingqi.等级 == 20) return e.reply(`已到达满级`)
             lingqi.exp -= exp;
             lingqi.等级 += 1;
+            const exp_lingqi = {
+                低级灵器: 2,
+                中级灵器: 3,
+                高级灵器: 5,
+                帝兵:8
+            }
+            lingqi.攻击加成 += 75 * lingqi.等级 * exp_lingqi[lingqi.品级];
+            lingqi.防御加成 += 65 * lingqi.等级 * exp_lingqi[lingqi.品级];
+            lingqi.生命加成 += 70 * lingqi.等级 * exp_lingqi[lingqi.品级];
+            lingqi.暴击加成 += 0.002 * lingqi.等级 * exp_lingqi[lingqi.品级];
+            lingqi.爆伤加成 += 0.001 * lingqi.等级 * exp_lingqi[lingqi.品级];
+            lingqi.闪避加成 += 0.0003 * lingqi.等级 * exp_lingqi[lingqi.品级];
             await Write_player(usr_qq, player,false,false,false);
-            return e.reply(`升级生成，目前等级${lingqi.等级}`)
+            return e.reply(`升级成功，目前等级${lingqi.等级}`)
         }
     }

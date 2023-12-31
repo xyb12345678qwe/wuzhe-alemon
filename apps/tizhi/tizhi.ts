@@ -16,6 +16,10 @@ export class tizhi extends APlugin  {
 					reg: /^(#|\/)?进入体质觉醒池$/,
 					fnc: 'enter',
                 },
+				{
+					reg: /^(#|\/)?强化体质$/,
+					fnc: '强化',
+                },
 			],
 		});
 	}
@@ -29,7 +33,15 @@ export class tizhi extends APlugin  {
         e.reply(`开始觉醒体质`);
         let tizhi = await gettizhi(e);
         player.体质 = tizhi;
-        await Write_player(usr_qq,player,false,false,false)
+        await Write_player(usr_qq,player,false,false,false);
         return;
     }
+	async 强化(e:AMessage){
+		const usr_qq = e.user_id;
+        if (!await existplayer(1,usr_qq)) return false;
+        let results = await Read_player(1,usr_qq)
+        let player = results.player;
+		const exp = lingqi.等级*1000;
+		if(player)
+	}
 }
