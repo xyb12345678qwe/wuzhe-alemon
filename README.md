@@ -1,4 +1,4 @@
-# 武者文游
+# 武者文游-alemon
 
  
 ### 介绍
@@ -15,7 +15,7 @@
 ````
 git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git ./plugins/wuzhe-plugin-alemon/
 
-npm i md5
+
 npm i js-yaml
 
 ````
@@ -34,7 +34,7 @@ sql文件:
 
 ### 交流群
 
-QQ群：无
+QQ群：869400987
 
 
 ### 作者相关
