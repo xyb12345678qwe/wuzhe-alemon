@@ -1,6 +1,5 @@
-import { getAppPath } from 'alemonjs'
-import { basename } from 'path'
-export const DirPath= getAppPath(import.meta.url)
-export const AppName = basename(DirPath)
+import {importPath } from 'alemonjs'
 
-
+export const app = importPath(import.meta.url)
+export const AppName = app.name;
+export const DirPath= app.cwd();

@@ -1,11 +1,9 @@
 import yaml from 'js-yaml';
-import {plugin,AMessage,Show,puppeteer,AppName,DirPath,fs} from '../api'
-import path, { dirname } from 'path';
-import { getAppPath,createHtml, screenshotByFile  } from 'alemonjs'
-import { promisify } from 'util';
+import {AMessage,Show,puppeteer,AppName,DirPath,fs,app} from '../api'
+import path from 'path';
+import {createHtml, screenshotByFile  } from 'alemonjs'
 import { writeFileSync } from 'fs'
 import art from 'art-template'
-import { pipeline, Readable } from 'stream';
 import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表} from './gameapi.js';
 /**
  * @param directory 文件
@@ -24,27 +22,18 @@ export function oImages(directory: string, data: any = {}) {
 
  export const data = path.join(DirPath, 'resources', 'data')
  export const __PATH = {
-   zongmen: path.join(data, 'zongmen'), 
-   player: path.join(data, 'player'), 
    help: path.join(data, 'help', 'help.yaml'), 
    list: path.join(data, 'item'), 
-   playerjson: path.join(data, 'player.json'),
    shezhi: path.join(DirPath,"shezhi",'all_shezhi.json') 
  };
-// console.log(__PATH.player);
+
 export const jsontype={
-    "1":__PATH.playerjson,
     "2":__PATH.shezhi,
     "3":data,
     "4":__PATH.list,
 }
 let yamltype ={
  "1":__PATH.help,
-}
-let type ={
-    //玩家文件
-      "1":__PATH.player,
-      "2":__PATH.zongmen,
 }
 
 let item ={
@@ -104,12 +93,7 @@ export async function Add_生命(usr_qq: string, num: number) {
     }
   }
 
-  //获取所有玩家的qq号(前提是玩家文件名是他们的qq号)
-  export async function alluser() {
-    const files = fs.readdirSync(__PATH.player).filter(file => file.endsWith('.json'));
-    const users = files.map(file => file.substring(0, file.lastIndexOf('.')));
-    return users;
-  }
+
   // export async function allzongmen() {
   //   const files = fs.readdirSync(__PATH.zongmen).filter(file => file.endsWith('.json'));
   //   const users = files.map(file => file.replace(/-zongmen\.json$/, ''));
@@ -534,17 +518,7 @@ export async function getCurrentTime(startTime: number, elapsedTime: number): Pr
   const current = new Date(start.getTime() + elapsed);
   return start.getTime() >= current.getTime();
 }
-//获取所有玩家文件夹名
-export async function getAllSubdirectories() {
-  try {
-    const subdirectories = fs.readdirSync(__PATH.player) // 读取目录下的所有文件和文件夹
-      .filter(item => fs.statSync(__PATH.player + '/' + item).isDirectory()); // 过滤出文件夹
-    return subdirectories;
-  } catch (error) {
-    console.error('读取文件夹列表时发生错误: ' + error);
-    return [];
-  }
-}
+
 //读取列表
 export async function _item(num:number, path1: string) {
     const playerPath = `${item[num]}/${path1}.json` ;
