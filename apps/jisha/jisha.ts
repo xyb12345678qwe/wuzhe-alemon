@@ -1,5 +1,5 @@
 import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,Write_list,getCurrentTime,_item, Read_json } from "../../api";
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,getCurrentTime,_item, Read_json } from "../../api";
 import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点} from '../../model/gameapi';
 export class jisha extends APlugin  {
 	constructor() {

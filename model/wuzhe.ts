@@ -60,49 +60,6 @@ export async function Add_生命(usr_qq: string, num: number) {
     return newLife;
   }
 }
-/**
- *
- * @param num [1:player 2:zongmen]
- * @param string [player,equipment,bag,status]
- * @returns 
- */
-
-// export async function existplayer(num: number, usr_qq: string, string: string) {
-//   if (num === 1) {
-//     const json = await Read_json(3,`/player.json`);
-//     return json.some(item => item.绑定账号.includes(usr_qq));
-//   } else if (num === 2) {
-//     const player = await Read_player(1, true, usr_qq, "player");
-//     return !!player.宗门;
-//   }
-// }
-  /**
- *
- * @param num 路径编号
- * @param id 是否开启id查找
- * @param usr_qq id或者usr_qq
- * @param string 文件后缀
- * @returns 
- */
-// export async function Read_player(num:number,id:boolean,usr_qq:string,fileType:string){
-//   let playerPath: string;
-//    let list: any;
-//    const json = id ? await Read_json(3,`/player.json`) : null;
-//    list = id ? json.find((item: any) => item.绑定账号.includes(usr_qq)) : null;
-//    const prefix = id ? type[num] + '/' + (id ? list.id : usr_qq) + '/' + (id ? list.id : usr_qq) : type[num] + '/' + usr_qq + '/' + usr_qq;
-//    playerPath = `${prefix}-${fileType}.json`;
-//    try {
-//      const playerData = await fs.promises.readFile(path.join(playerPath), 'utf8');
-//      return JSON.parse(playerData);
-//    } catch (err) {
-//      console.error(err);
-//      throw new Error('Failed to read player data');
-//    }
-//  }
-  // export async function getidlist(usr_qq: string){
-  //   const json = await Read_json(3,`/player.json`);
-  //   return json.find(item => item.绑定账号.includes(usr_qq));
-  // }
   /**
  *
  * @param num [1:player.json 2:shezhi 3.data目录 4:item目录]
@@ -128,53 +85,7 @@ export async function Add_生命(usr_qq: string, num: number) {
       }
       return path.join(playerPath);
     }
-   /**
- *
- * @param num [1:player 2:zongmen]
- * @param id 是否要开启id查找
- * @param string [player,equipment,bag,status]
- * @returns 
- */
   
-// export async function Write_player(num: number, id: boolean, usr_qq: string, player: any, suffix: string) {
-//     let list: any= await getidlist(usr_qq);
-//     let dirBase = '';
-//     let fileName = '';
-//     if (num === 1 && id) {
-//       dirBase = path.join(type[num], list.id);
-//       fileName = `${list.id}-${suffix}.json`;
-//     } else if (num === 1 && !id) {
-//       dirBase = path.join(type[num], usr_qq);
-//       fileName = `${usr_qq}-${suffix}.json`;
-//     } else if (num === 2) {
-//       const playerData = await Read_player(1, false, id ? list.id : usr_qq, "player");
-//       dirBase = path.join(type[num], id ? playerData.宗门.宗主 : usr_qq);
-//       fileName = `${id ? playerData.宗门.宗主 : usr_qq}-${suffix}.json`;
-//     }
-//     const dir = path.join(dirBase, fileName);
-//     console.log(dir);
-//     if (!fs.existsSync(dirBase)) fs.mkdirSync(dirBase, { recursive: true });
-//     const newJson = JSON.stringify(player, null, '\t');
-//     const writeStream = fs.createWriteStream(dir, { encoding: 'utf8' });
-//     const pipelineAsync = promisify(pipeline);
-//     try {
-//       await pipelineAsync([Readable.from([newJson]), writeStream]);
-//       console.log('写入成功');
-//     } catch (err) {
-//       console.log('写入失败', err);
-//     }
-//   }
-export async function Write_list(list:String,string:String){
-  const dir = `${__PATH.list}/${string}.json`
-  const newJson = JSON.stringify(list, null, '\t');
-  try {
-  fs.writeFileSync(dir, newJson, 'utf8');
-  console.log('写入成功');
-  } catch (err) {
-        console.log('写入失败', err);
-  }
-    
-}
   
    /**
  *
@@ -192,10 +103,7 @@ export async function Write_list(list:String,string:String){
         console.log('写入失败', err);
     }
   }
-  //判断属性存在是否
-  export async function isNotNull(obj:any) {
-    return obj != null;
-  }
+
   //获取所有玩家的qq号(前提是玩家文件名是他们的qq号)
   export async function alluser() {
     const files = fs.readdirSync(__PATH.player).filter(file => file.endsWith('.json'));
@@ -243,62 +151,7 @@ export async function Write_list(list:String,string:String){
       console.log(error);
     }
   }
-  /**
-   * 
-   * @param {*} usr_qq 
-   * @param {*} new_player 
-   * @param {*} new_bag 
-   * @param {*} new_equipment 
-   * @param {*} new_status 
-   * @param {*} new_list
-   * @param boolen 是否开启id查找
-   * @param 不写则填无
-   */
-  // export async function Write_playerData(
-  //   usr_qq: string,
-  //   new_player: any,
-  //   new_bag: any,
-  //   new_equipment: any,
-  //   new_status: any,
-  //   new_list: string,
-  //   new_list_string: any,
-  //   boolen:boolean
-  // ) {
-  //   const tasks: Promise<any>[] = [];
-  //   if (new_player !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_player, 'player'));
-  //   if (new_bag !== '无') tasks.push(Write_player(1,boolen, usr_qq, new_bag, 'bag'));
-  //   if (new_equipment !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_equipment, 'equipment'));
-  //   if (new_status !== '无') tasks.push(Write_player(1, boolen,usr_qq, new_status, 'status'));
-  //   if (new_list !== '无') tasks.push(Write_list(new_list, new_list_string));
-  //   await Promise.all(tasks);
-  // }
-  
-  /**
-   * 
-   * @param {*} usr_qq 
-   * @param {*} player
-   * @param {*} bag 
-   * @param {*} equipment 
-   * @param {*} status 
-   * @param {*} list
-   * @param id 是否开启id查找
-   * @param 
-   */
-  // export async function Read_playerData(usr_qq: string, player: boolean, bag: boolean, equipment: boolean, status: boolean, id: boolean, ...list: string[]) {
-  //   const tasks: Promise<any>[] = [];
-  //   if (player) tasks.push(Read_player(1, id, usr_qq, 'player').then(result => ({ player: result })));
-  //   if (bag) tasks.push(Read_player(1, id, usr_qq, 'bag').then(result => ({ bag: result })));
-  //   if (equipment) tasks.push(Read_player(1, id, usr_qq, 'equipment').then(result => ({ equipment: result })));
-  //   if (status) tasks.push(Read_player(1, id, usr_qq, 'status').then(result => ({ status: result })));
-  //   if (list) {
-  //     list.forEach(name => {
-  //       tasks.push(Read_json(4, name).then(result => ({ [name]: result })));
-  //     });
-  //   }
-  //   const resultsArray = await Promise.all(tasks);
-  //   const results = Object.assign({}, ...resultsArray);
-  //   return results;
-  // }
+
   
   export async function pic(e: AMessage, get_data: any, show: string): Promise<void> {
     const data1 = await new Show(e)[show](get_data);
@@ -383,28 +236,6 @@ export async function getUserStatus(e:AMessage) {
   return await Read_player(1,usr_qq);
 }
 
-// export async function startstatus(e, 状态, 返回状态) {
-//   const status = await getUserStatus(e);
-//   if (!status) return false;
-//   const x = await getNonZeroKeys(status);
-//   if (x !== false) return e.reply(`你正在${x}中`);
-//   status[状态] = now;
-//   await Write_player(1, e.user_id, status, 'status');
-//   return e.reply(`开始${返回状态}`);
-// }
-
-// export async function stopstatus(e, 状态, 结算物品, 结束回答物品, 结算概率) {
-//   const status = await getUserStatus(e);
-//   if (!status) return;
-//   let player = await Read_player(1, e.user_id, `player`);
-//   if (status[状态] === 0) return e.reply(`你没在${状态}`);
-//   const time = (now - status[状态]) / 1000 / 60;
-//   const money = Math.floor(time * 结算概率);
-//   player[结算物品] += money;
-//   status[状态] = 0;
-//   await Write_playerData(e.user_id, player, "无", "无", status);
-//   return e.reply(`结束成功，获得${money}${结束回答物品}`);
-// }
 export async function msToTime(duration: number): Promise<string> {
     const seconds = Math.floor((duration / 1000) % 60);
     const minutes = Math.floor((duration / (1000 * 60)) % 60);
@@ -736,45 +567,7 @@ export async function extractAttributesWithPropertyOne(dataArray:any) {
   }
   return result;
 }
-// export async function Read_player2(num,usr_qq,string){
-//   let playerPath
-//   if(num === 2){
-//     playerPath = `${type[num]}/${usr_qq}-${string}.json`;
-//   }else if(num === 1){
-//     playerPath = `${type[num]}/${usr_qq}/${usr_qq}-${string}.json`;
-//   }
-//   const dir = path.join(playerPath);
-//   try {
-//     const playerData = fs.readFileSync(dir, 'utf8');
-//     const player = JSON.parse(playerData);
-//     return player;                
-//   } catch (err) {
-//     console.log(err);
-//     return 'error';
-//   }
-// }
 
-// export async function Write_json_path(path1:string,json:String) {
-//   const dir = path.join(DirPath,path1);
-//   const newJson = JSON.stringify(json, null, '\t');
-//   try {
-//       fs.writeFileSync(dir, newJson, 'utf8');
-//       console.log('写入成功');
-//   } catch (err) {
-//       console.log('写入失败', err);
-//   }
-// }
-// export async function (path1:string) {
-//   const dir = path.join(DirPath,path1);
-//   try {
-//     const playerData = fs.readFileSync(dir, 'utf8');
-//     const player = JSON.parse(playerData);
-//     return player;
-//   } catch (err) {
-//     console.log(err);
-//     return 'error';
-//   }
-// }
 export async function wanjietang_thing(){
 	const [items, skills]:any = await Promise.all([
 		道具列表.findAll({raw:true}),
