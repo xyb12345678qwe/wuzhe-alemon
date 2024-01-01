@@ -58,6 +58,12 @@ export class use extends APlugin  {
                 if (!exp) return e.reply(`数值暂未设置`)
                 player.灵魂力量 += exp;
                 msg.push(`灵魂力量增加${exp},目前灵魂力量${player.灵魂力量}`);
+            }else if(thing_name.includes(`体质经验丹`)){
+                const exp = daoju_shezhi.thing[thing_name] * Number(num)
+                if (!exp) return e.reply(`数值暂未设置`)
+                if(player.体质 == "无")return e.reply(`先去觉醒体质`);
+                player.体质.exp += exp
+                msg.push(`体质经验增加${exp},目前体质经验${player.灵魂力量}`);
             }
             if (msg.length === 1 && thing.type !== "功法") return e.reply(`道具目前没有设置可使用的处理代码`);
             if(thing.type == "功法")thing.type ="已学习功法";
