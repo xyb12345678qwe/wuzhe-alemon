@@ -1,3 +1,4 @@
+import { Model } from "sequelize";
 import { AMessage } from "../api";
 import { Sequelize, user_bag, user_equiment, user_id,user_player, user_status,Op, 灵器列表,sequelize, literal,user_zongmen, 体质} from "./index";
 /**
@@ -18,7 +19,7 @@ export async function existplayer(num,usr_qq) {
 }
 export async function create_player(e,usr_qq: string,name: string,性别: string){
     try {
-        const lingqi:any = await getlingqi(e);
+        const lingqi:any = await getLingqi(e);
         const uid = await generateUID()
         await Promise.all([
             user_id.create({uid:uid, 绑定账号:[usr_qq],允许绑定账号:[usr_qq]}),
@@ -143,148 +144,141 @@ export async function generateUID(){
     return 100000000 + num
 }
 
-interface Lingqi {
-    id: number;
-    name: string;
-    品级: string;
-    攻击加成: number;
-    防御加成: number;
-    生命加成: number;
-    暴击加成: number;
-    爆伤加成: number;
-    闪避加成: number;
-    等级: number;
-    exp: number;
-  }
-  
-  export async function Read_item(name: string): Promise<Lingqi[]> {
-    let tableAttributes;
-    if (name === "灵器列表") tableAttributes = await 灵器列表.findAll({ raw: true });
-    return tableAttributes || [];
-  }
-  
-  const 权重: Record<string, number> = {
-    低级灵器: 50,
-    中级灵器: 30,
-    高级灵器: 15,
-    帝器: 2,
-  };
-  
-  export function getItemsByGrade(data: Lingqi[]): Lingqi[] {
-    const grades: string[] = ["低级灵器", "中级灵器", "高级灵器", "帝器"];
-    const result: Map<string, Lingqi[]> = new Map();
-  
-    grades.forEach((grade) => {
-      result.set(grade, data.filter((item) => item.品级 === grade));
-    });
-  
-    return Array.from(result.values()).flat();
-  }
-  
-  export function getRandomItem(灵器分类: Map<string, Lingqi[]>, 权重: Record<string, number>): Lingqi | null {
-    const totalWeight = Object.values(权重).reduce((a, b) => a + b, 0);
-    const randomWeight = Math.random() * totalWeight;
-    let currentWeight = 0;
-  
-    const flattenedItems = Array.from(灵器分类.values()).flat();
-  
-    for (const [grade, weight] of Object.entries(权重)) {
-      currentWeight += weight;
-      if (randomWeight <= currentWeight) {
-        const items = flattenedItems.filter((item) => item.品级 === grade);
-        if (items.length > 0) {
-          return items[Math.floor(Math.random() * items.length)];
-        }
-      }
-    }
-  
-    return null;
-  }
-  
-  /**
-   * 觉醒灵器
-   * @param e
-   * @returns
-   */
-  export async function getlingqi(e: AMessage): Promise<Lingqi | null> {
-    const 灵器_list = await Read_item('灵器列表');
-    const 灵器分类 = getItemsByGrade(灵器_list);
-    const randomItem:any = getRandomItem(new Map(灵器分类.map((item) => [item.品级, [item]])), 权重);
-  
-    if (randomItem) {
-      e.reply(`觉醒成功，觉醒出${randomItem.name}，品级为${randomItem.品级}`);
-      return randomItem;
-    } else {
-      console.error("未能获取随机灵器");
-      return null;
-    }
-  }
-  
-interface tizhi {
+interface Item {
   id: number;
   name: string;
-  type: string;
-  修炼加成: number;
+  品级?: string;
+  type?: string;
+  攻击加成?: number;
+  修炼加成?: number;
   防御加成: number;
   生命加成: number;
   暴击加成: number;
   爆伤加成: number;
+  闪避加成: number;
   等级: number;
   exp: number;
 }
-const 权重2: Record<string, number> = {
-  低级体质:50,
-  中级体质:45,
-  高级体质:40,
-  天级体质:30,
-  圣级体质:10,
-  神级体质:5
-};
-   /**
-   * 觉醒体质
-   * @param e
-   * @returns
-   */
-   export async function gettizhi(e: AMessage): Promise<tizhi | null> {
-    const 灵器_list:any = await 体质.findAll({raw:true})
-    const 灵器分类 = getItemsByGrade2(灵器_list);
-    const randomItem:any = getRandomItem2(new Map(灵器分类.map((item) => [item.type, [item]])), 权重2);
-  
-    if (randomItem) {
-      e.reply(`觉醒成功，觉醒出${randomItem.name}，品级为${randomItem.type}`);
-      return randomItem;
-    } else {
-      console.error("未能获取随机灵器");
-      return null;
-    }
+
+interface WeightedItems {
+  [grade: string]: number;
+}
+
+class CustomError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CustomError';
   }
-  export function getItemsByGrade2(data: tizhi[]): tizhi[] {
-    const grades: string[] = ["低级体质", "中级体质", "高级体质", "天级体质","圣级体质","神级体质"];
-    const result: Map<string, tizhi[]> = new Map();
-  
-    grades.forEach((grade) => {
-      result.set(grade, data.filter((item) => item.type === grade));
-    });
-  
-    return Array.from(result.values()).flat();
+}
+
+async function readItemList(itemType: '灵器列表' | '体质'): Promise<Item[]> {
+  try {
+    const items = await (itemType === '灵器列表' ? 灵器列表.findAll({ raw: true }) : 体质.findAll({ raw: true })) as unknown as Item[];
+    return items || [];
+  } catch (error) {
+    console.error(`Error in readItemList:`, error);
+    return [];
   }
-  
-  export function getRandomItem2(灵器分类: Map<string, tizhi[]>, 权重: Record<string, number>):tizhi | null {
-    const totalWeight = Object.values(权重).reduce((a, b) => a + b, 0);
-    const randomWeight = Math.random() * totalWeight;
-    let currentWeight = 0;
-  
-    const flattenedItems = Array.from(灵器分类.values()).flat();
-  
-    for (const [grade, weight] of Object.entries(权重)) {
-      currentWeight += weight;
-      if (randomWeight <= currentWeight) {
-        const items = flattenedItems.filter((item) => item.type === grade);
-        if (items.length > 0) {
-          return items[Math.floor(Math.random() * items.length)];
-        }
+}
+
+function filterItemsByGrade(items: Item[], grades: string[]): Item[] {
+  const filteredItems = items.filter((item) => {
+    const isGradeMatch = grades.includes(item.品级 || '') || grades.includes(item.type || '');
+    return isGradeMatch;
+  });
+
+  return filteredItems;
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = array.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function getRandomItem(items: Item[], weights: WeightedItems): Item | null {
+  const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+  const randomValue = Math.random() * totalWeight;
+  let currentWeight = 0;
+  const flattenedItems = shuffleArray(items).map((item) => ({ ...item }));
+
+  for (const [grade, weight] of Object.entries(weights)) {
+    currentWeight += weight;
+    if (randomValue <= currentWeight) {
+      const gradeItems = flattenedItems.filter((item) => item.品级 == grade || item.type == grade);
+      if (gradeItems.length > 0) {
+        return gradeItems[Math.floor(Math.random() * gradeItems.length)];
+      } else {
+        console.error(`未找到等级为${grade}的物品`);
+        return null;
       }
     }
-  
+  }
+
+  return flattenedItems.length > 0 ? flattenedItems[flattenedItems.length - 1] : null;
+}
+
+function displayAwakenedMessage(e: AMessage, item: Item, itemType: '灵器列表' | '体质'): void {
+  const grade = item.品级 || item.type;
+  if (grade) {
+    e.reply(`觉醒成功，觉醒出${item.name}，品级为${grade}`);
+  } else {
+    console.error(`未找到有效的品级信息`);
+  }
+}
+
+export async function getLingqi(e: AMessage): Promise<Item | null> {
+  return getAwakenedItem(e, 
+    '灵器列表', 
+    ['低级灵器', '中级灵器', '高级灵器', '帝器'],
+     权重);
+}
+
+export async function getTizhi(e: AMessage): Promise<Item | null> {
+  return getAwakenedItem(
+    e,
+    '体质',
+    ['低级体质', '中级体质', '高级体质', '天级体质', '圣级体质', '神级体质'],
+    权重2
+  );
+}
+
+async function getAwakenedItem(
+  e: AMessage,
+  itemType: '灵器列表' | '体质',
+  grades: string[],
+  weights: WeightedItems
+): Promise<Item | null> {
+  try {
+    const itemList = await readItemList(itemType);
+    const itemCategories = filterItemsByGrade(itemList, grades);
+    const randomItem = getRandomItem(itemCategories, weights);
+    if (randomItem) {
+      displayAwakenedMessage(e, randomItem, itemType);
+      return randomItem;
+    } else {
+      throw new CustomError(`获取随机${itemType}失败`);
+    }
+  } catch (error) {
+    console.error(`函数出错：${error instanceof CustomError ? error.message : error}`);
     return null;
   }
+}
+const 权重: Record<string, number> = {
+  低级灵器: 50,
+  中级灵器: 30,
+  高级灵器: 15,
+  帝器: 2,
+  };
+  
+  const 权重2: Record<string, number> = {
+  低级体质: 50,
+  中级体质: 45,
+  高级体质: 40,
+  天级体质: 30,
+  圣级体质: 10,
+  神级体质: 5,
+  };

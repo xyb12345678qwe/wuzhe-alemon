@@ -1,6 +1,6 @@
 import {APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item, Read_json, getUserStatus, getString2, oImages} from '../../api'
-import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,体质,gettizhi} from '../../model/gameapi';
+import { getTizhi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,体质} from '../../model/gameapi';
 export class tizhi extends APlugin  {
 	constructor() {
 		super({
@@ -31,7 +31,7 @@ export class tizhi extends APlugin  {
         if(!player.体质) player.体质 ="无"
         if(player.金钱 < 100000) return e.reply(`连十万元都没有，还好意思来觉醒体质，哪来的回哪去`)
         e.reply(`开始觉醒体质`);
-        let tizhi = await gettizhi(e);
+        let tizhi = await getTizhi(e);
         player.体质 = tizhi;
         await Write_player(usr_qq,player,false,false,false);
         return;

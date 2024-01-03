@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
     checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,oImages,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
     from "../../api";
+import {getLingqi,getTizhi} from '../../model/gameapi'
 // const redis = new Redis({
 //     port: 6379,          
 //     host: '127.0.0.1',  
@@ -28,6 +29,10 @@ export class 测试 extends APlugin  {
                 {
                     reg: /^(#|\/)?一言api$/,
                     fnc: 'yiyan',
+                },
+                {
+                    reg: /^(#|\/)?测试$/,
+                    fnc: 'y',
                 },
                
             ],
@@ -57,7 +62,13 @@ export class 测试 extends APlugin  {
             console.log(data);
             e.reply(data)
         })}
-   
+   async y(e:AMessage){
+    for (let index = 0; index <= 10; index++) {
+        const x = await getLingqi(e)
+        const xx = await getTizhi(e)
+        console.log(x?.name+'\n'+ xx?.name);
+    }
+   }
     }
 
     

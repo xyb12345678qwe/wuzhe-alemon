@@ -1,5 +1,5 @@
 import {APlugin ,AMessage,findIndexByName,Strand,_item,pic,Read_yaml,extractAttributesWithPropertyOne, Add_bag_thing,oImages, Read_json,wanjietang_thing} from '../../api'
-import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';
+import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';
 export class show extends APlugin{
 	constructor() {
 		super({

@@ -4,7 +4,7 @@ import path from 'path';
 import {createHtml, screenshotByFile  } from 'alemonjs'
 import { writeFileSync } from 'fs'
 import art from 'art-template'
-import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表} from './gameapi.js';
+import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表} from './gameapi.js';
 /**
  * @param directory 文件
  * @param data 数据

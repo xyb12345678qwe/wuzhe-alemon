@@ -1,5 +1,5 @@
 import {plugin ,AMessage,Show,puppeteer,findIndexByName,Strand,_item,pic,Read_yaml,Write_json,oImages, Read_json} from '../../api'
-import { getlingqi,create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid} from '../../model/gameapi';
+import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,getLingqi} from '../../model/gameapi';
 let shezhi ={}
 export class start extends plugin  {
 	constructor() {
@@ -191,7 +191,7 @@ export class start extends plugin  {
     if(!player.本命灵器)player.本命灵器="无";
     if(player.本命灵器 !="无") return e.reply(`你已觉醒过了本名灵器`)
     e.reply(`开始觉醒灵器`)
-    player.本命灵器 = await getlingqi(e)
+    player.本命灵器 = await getLingqi(e)
     player.攻击加成+= player.本命灵器.攻击加成
     player.防御加成+= player.本命灵器.防御加成
     player.暴击加成+= player.本命灵器.暴击加成
