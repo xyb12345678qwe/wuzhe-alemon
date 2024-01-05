@@ -26,7 +26,7 @@ export class zhiliao extends APlugin  {
         let player = results.player;
         if(player.当前生命 === player.生命上限)return e.reply(`目前生命不需要治疗`);
         if(player.金钱 <= 100000)return e.reply(`目前只有${player.金钱},还差${100000 - player.金钱}`);
-		await Add_生命(usr_qq,999999999999);
+		// await Add_生命(usr_qq,999999999999);
 		player.当前生命 = player.生命上限;
         player.金钱 -= 100000;
         await Write_player(usr_qq,player,false,false,false);

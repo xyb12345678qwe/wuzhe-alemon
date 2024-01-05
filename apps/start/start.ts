@@ -1,4 +1,4 @@
-import {plugin ,AMessage,Show,puppeteer,findIndexByName,Strand,_item,pic,Read_yaml,Write_json,oImages, Read_json} from '../../api'
+import {plugin ,AMessage,Show,puppeteer,findIndexByName,Strand,pic,Read_yaml,Write_json,oImages, Read_json} from '../../api'
 import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,getLingqi} from '../../model/gameapi';
 let shezhi ={}
 export class start extends plugin  {

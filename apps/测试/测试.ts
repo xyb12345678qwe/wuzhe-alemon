@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,_item,oImages,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
     from "../../api";
 import {getLingqi,getTizhi} from '../../model/gameapi'
 // const redis = new Redis({

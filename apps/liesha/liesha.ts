@@ -1,5 +1,5 @@
 import {APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,_item, Read_json, getUserStatus, getString2, oImages} from '../../api'
+    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner, Read_json, getUserStatus, getString2, oImages} from '../../api'
 import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';  
 export class liesha extends APlugin  {
 	constructor() {

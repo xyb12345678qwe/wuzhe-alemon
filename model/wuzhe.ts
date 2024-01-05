@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import {AMessage,Show,puppeteer,AppName,DirPath,fs,app} from '../api'
+import {AMessage,Show,puppeteer,AppName,DirPath,fs,app,createPicture} from '../api'
 import path from 'path';
 import {createHtml, screenshotByFile  } from 'alemonjs'
 import { writeFileSync } from 'fs'
@@ -10,15 +10,29 @@ import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂
  * @param data 数据
  * @returns
  */
-export function oImages(directory: string, data: any = {}) {
-  const { template, AdressHtml } = createHtml(AppName, `${DirPath}${directory}`)
-  writeFileSync(AdressHtml, art.render(template, data))
-  return screenshotByFile(AdressHtml, {
+export async function oImages(directory: string, data: any = {}):Promise<string | false | Buffer> {
+  // const { template, AdressHtml } = createHtml(AppName, `${DirPath}${directory}`)
+  // writeFileSync(AdressHtml, art.render(template, data))
+  // return screenshotByFile(AdressHtml, {
+  //   SOptions: { type: 'jpeg', quality: 90 },
+  //   tab: 'body',
+  //   timeout: 2000
+  // })
+  const img = await createPicture({
+    /**
+     * 插件名
+     */
+    AppName,
+    tplFile: `${DirPath}${directory}`,
+    data,
     SOptions: { type: 'jpeg', quality: 90 },
-    tab: 'body',
-    timeout: 2000
-  })
+  }).catch((err) => {
+    console.log(err);
+    return false;
+  });
+  return img;
 }
+
 
  export const data = path.join(DirPath, 'resources', 'data')
  export const __PATH = {
@@ -45,7 +59,6 @@ export async function Add_生命(usr_qq: string, num: number) {
   const maxLife = Math.max(player.生命上限, num);
   const newLife = Math.min(player.当前生命 + num, maxLife);
   if (newLife !== player.当前生命) {
-    player.当前生命+= newLife
     return newLife;
   }
 }
@@ -234,33 +247,55 @@ export async function msToTime(duration: number): Promise<string> {
 export async function gettupo(e:AMessage,玩家境界:string,data境界名:string,突破物品:string){
   const results:any = await getUserStatus(e);
   let player =results.player
-  const now_level_id = await findIndexByName(player[玩家境界],await _item(1,data境界名)) +1;
-  let xx = await _item(1,data境界名)
+  let xx;
+  switch (data境界名) {
+    case '武者境界':
+      xx = await 武者境界.findAll({ raw: true });
+      break;
+    case '体魄境界':
+      xx = await 体魄境界.findAll({ raw: true });
+      break;
+    case '灵魂境界':
+      xx = await 灵魂境界.findAll({ raw: true });
+      break;
+  }
+  const now_level_id = await findIndexByName(player[玩家境界],xx) +1;
+  if(now_level_id > xx.length) return e.reply(`已达${data境界名}上限`)
   const now = xx.find(item => item.name = player[玩家境界]);
   let x = xx[now_level_id];
   if(player[突破物品] < now[突破物品]) return e.reply(`${突破物品}不足`);
   let rand = Math.random();
   let prob = 1 - now_level_id / 60;
-  if(rand > prob){
-      const bad_rand = Math.random();
-      if(bad_rand>0.7)return e.reply(`你突破中突然又想到等会要去买台遥遥领先玩，突破失败`)
-      if(bad_rand > 0.5)return e.reply(`旁边的山突然塌了，你被余波扰乱心智，突破失败`);
-      if(bad_rand >0.4)return e.reply(`突然有人喊道，有两个女人在大街上打架还撕扯上衣服，你想去看看，突破失败`);
-      if(bad_rand>0.6)return e.reply(`突然有道雷劈到了你身上，突破失败`);
-      if(bad_rand>0.3)return e.reply(`你的脑海中突然想起了一道声音:遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,遥遥领先,还是遥遥领先,你突破失败`);
-      else return e.reply(`突破失败`);
-  }else{
-      player[突破物品] -= now[突破物品];
-      player[玩家境界] = x.name
-      player.攻击加成 += x.攻击加成
-      player.防御加成+= x.防御加成
-      player.暴击加成+= x.暴击加成
-      player.爆伤加成+= x.爆伤加成
-      player.生命加成+= x.生命加成
-      player.闪避加成+= x.闪避加成
-      player.生命上限+=x.生命加成
-      await Write_player(e.user_id,player,false,false,false)
-      return e.reply(`突破成功,目前境界${x.name}`);
+  if (rand > prob) {
+    const messages = [
+      "你突破中突然又想到等会要去买台遥遥领先玩，突破失败",
+      "旁边的山突然塌了，你被余波扰乱心智，突破失败",
+      "突然有人喊道，有两个女人在大街上打架还撕扯上衣服，你想去看看，突破失败",
+      "突然有道雷劈到了你身上，突破失败",
+      "你的脑海中突然想起了一道声音:遥遥领先,遥遥领先...你突破失败",
+      "突破失败"
+    ];
+  
+    let replyMessage = "突破失败";
+    const bad_rand = Math.random();
+  
+    if (bad_rand > 0.7) replyMessage = messages[0];
+    else if (bad_rand > 0.5) replyMessage = messages[1];
+    else if (bad_rand > 0.4) replyMessage = messages[2];
+    else if (bad_rand > 0.6) replyMessage = messages[3];
+    else if (bad_rand > 0.3) replyMessage = messages[4];
+  
+    return e.reply(replyMessage);
+  } else {
+    player[突破物品] -= now[突破物品];
+    player[玩家境界] = x.name;
+    const attributes = ['攻击加成', '防御加成', '暴击加成', '爆伤加成', '生命加成', '闪避加成'];
+    attributes.forEach(attribute => {
+      player[attribute] += x[attribute];
+    });
+    player.生命上限 += x.生命加成
+    await Write_player(e.user_id, player, false, false, false);
+    return e.reply(`突破成功,目前境界${x.name}`);
   }
 }
 export async function getstring(string:string,...包含的字符串:string[]){
@@ -519,18 +554,6 @@ export async function getCurrentTime(startTime: number, elapsedTime: number): Pr
   return start.getTime() >= current.getTime();
 }
 
-//读取列表
-export async function _item(num:number, path1: string) {
-    const playerPath = `${item[num]}/${path1}.json` ;
-    try {
-    const data = await fs.readFileSync(playerPath, 'utf-8');
-    const parsedData = JSON.parse(data);
-    return parsedData;
-    } catch (err) {
-    console.error(err);
-    throw err;
-    }
-}
 //提取数组属性万界堂是否为1
 export async function extractAttributesWithPropertyOne(dataArray:any) {
   const result:string[] = [];

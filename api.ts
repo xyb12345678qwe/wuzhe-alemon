@@ -1,3 +1,4 @@
+export {createPicture} from './src/img/createPicture.js'
 export * from './model/wuzhe'
 export * from './config'
 import base from './model/base.js';
