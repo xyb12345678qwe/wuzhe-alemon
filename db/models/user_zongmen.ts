@@ -48,6 +48,6 @@ export const user_zongmen = sequelize.define("user_zongmen", {
 },{
   ...TableConfig
 });
-await user_zongmen.sync({ alter: true }) 
+await user_zongmen.sync({ alter: true });
 // user_equiment.sync()
 // user_equiment.create({uid:1234})

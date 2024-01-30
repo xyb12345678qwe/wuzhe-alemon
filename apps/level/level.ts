@@ -1,11 +1,8 @@
-import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo } from "../../api";
+import { APlugin ,AMessage,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo } from "../../api";
 
 export class level extends APlugin  {
 	constructor() {
 		super({
-			/** 功能名称 */
-			name: 'level',
-			/** 功能描述 */
 			dsc: '基础模块',
 			event: 'message',
 			/** 优先级，数字越小等级越高 */

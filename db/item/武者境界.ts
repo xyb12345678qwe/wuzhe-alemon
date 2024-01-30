@@ -15,8 +15,7 @@ export const 武者境界 = sequelize.define("武者境界", {
 await 武者境界.sync({ force: true });
 // 道具列表.sync({ alter: true }) 
 let list = await Read_json(4,'/武者境界.json');
-list.forEach(item => {
-    武者境界.create({
+let records = list.map(item => ({
         name:item.name,
         灵气:item.灵气,
         攻击加成:item.攻击加成,
@@ -26,4 +25,6 @@ list.forEach(item => {
         爆伤加成:item.爆伤加成,
         闪避加成:item.闪避加成
     })
-})
+)
+
+await 武者境界.bulkCreate(records);

@@ -7,7 +7,8 @@ export const user_status = sequelize.define("user_status", {
     修炼灵魂: { type: DataTypes.JSON, defaultValue: 0 },
     猎杀妖兽: { type: DataTypes.JSON, defaultValue: 0 },
     猎妖: { type: DataTypes.JSON, defaultValue: 0 },
-    采药: { type: DataTypes.JSON, defaultValue: 0 }
+    采药: { type: DataTypes.JSON, defaultValue: 0 },
+    秘境:{ type: DataTypes.JSON, defaultValue: 0 },
 },{
   ...TableConfig
 });

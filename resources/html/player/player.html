@@ -7,6 +7,8 @@
       type="text/css"
       href="@/resources/html/player/player.css"
     />
+    <style>
+    </style>
 </head>
 <body>
   <div>
@@ -96,98 +98,16 @@
           <div class="item">
             <div class="item_title font_left">
               本命灵器：{{player.本命灵器.name}}【{{player.本命灵器.品级}}】<br />
+              {{if player.体质 != "无"}}
+              体质:{{player.体质.name}}【{{player.体质.type}}】<br />
+              {{/if}}
+              不朽细胞:{{player.不朽细胞}} / 1000<br />
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  {{if equipment.胸甲&& equipment.腿甲&&  equipment.法宝}}
-  <div class="card_box2">
-    <div class="use_data2">
-      <div class="user_font user_font_title">[装备信息]</div>
-      <div class="user_font wupin">
-        {{if equipment.胸甲}}
-        <div class="item">
-          <div class="item_title2">{{equipment.胸甲.name}}</div>
-          {{if equipment.胸甲.攻击>10 || equipment.胸甲.防御>10 || equipment.胸甲.hp>10}}
-          <div class="item_int2">
-            攻击：{{(equipment.胸甲.攻击).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            防御：{{(equipment.胸甲.防御).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            生命：{{(equipment.胸甲.生命).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            闪避：{{(equipment.胸甲.闪避).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            爆伤：{{(equipment.胸甲.爆伤).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            暴击：{{(equipment.胸甲.爆伤 * 100).toFixed(0)}}%
-          </div>
-          {{/if}}
-          {{/if}}
-        </div>
-        {{if equipment.腿甲}}
-        <div class="item">
-          <div class="item_title2">{{equipment.腿甲.name}}</div>
-          {{if equipment.腿甲.攻击>10 || equipment.腿甲.防御>10 || equipment.腿甲.hp>10}}
-          <div class="item_int2">
-            攻击：{{(equipment.腿甲.攻击).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            防御：{{(equipment.腿甲.防御).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            生命：{{(equipment.腿甲.生命).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            闪避：{{(equipment.腿甲.闪避).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            爆伤：{{(equipment.腿甲.爆伤).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            暴击：{{(equipment.腿甲.爆伤 * 100).toFixed(0)}}%
-          </div>
-          {{/if}}
-          {{/if}}
-        </div>
-        {{if equipment.法宝}}
-        <div class="item">
-          <div class="item_title2">{{equipment.法宝.name}}</div>
-          {{if equipment.法宝.攻击>10 || equipment.法宝.防御>10 || equipment.法宝.生命>10}}
-          <div class="item_int2">
-            攻击：{{(equipment.法宝.攻击).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            防御：{{(equipment.法宝.防御).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            生命：{{(equipment.法宝.生命).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            闪避：{{(equipment.法宝.闪避).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            爆伤：{{(equipment.法宝.爆伤).toFixed(0)}}
-          </div>
-          <div class="item_int2">
-            暴击：{{(equipment.法宝.爆伤 * 100).toFixed(0)}}%
-          </div>
-          {{/if}}
-          {{/if}}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="user_bottom2"></div>
-{{/if}}
  </body>
 </html>
   

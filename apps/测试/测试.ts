@@ -1,6 +1,6 @@
 import Redis from "ioredis";
-import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages,puppeteer,axios,fetchData,apiUrl2,fs,DirPath} 
+import { APlugin ,AMessage,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages,axios,fetchData,apiUrl2,fs,DirPath} 
     from "../../api";
 import {getLingqi,getTizhi} from '../../model/gameapi'
 // const redis = new Redis({
@@ -14,9 +14,6 @@ const playerdata = {};
 export class 测试 extends APlugin  {
     constructor() {
         super({
-            /** 功能名称 */
-            name: '测试',
-            /** 功能描述 */
             dsc: '基础模块',
             event: 'message',
             /** 优先级，数字越小等级越高 */
@@ -63,11 +60,7 @@ export class 测试 extends APlugin  {
             e.reply(data)
         })}
    async y(e:AMessage){
-    for (let index = 0; index <= 10; index++) {
-        const x = await getLingqi(e)
-        const xx = await getTizhi(e)
-        console.log(x?.name+'\n'+ xx?.name);
-    }
+    let x = axios.post('127.0.0.1:3000/plugin/start/1',{e})
    }
     }
 

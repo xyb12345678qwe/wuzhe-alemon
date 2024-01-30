@@ -78,7 +78,14 @@
     - icon: help-icon_2
       title: '(/|#)查看技能栏'
       desc: '查看技能栏'
-      
+- group: 兑换码
+  list:
+    - icon: help-icon_2
+      title: '(/|#)兑换码+兑换码名'
+      desc: '兑换码'
+    - icon: help-icon_2
+      title: '(/|#)查看开局兑换码'
+      desc: '查看开局兑换码'   
 - group: 个人信息
   list:
     - icon: help-icon_2
@@ -90,14 +97,57 @@
     - icon: help-icon_2
       title: '(/|#)我的宗门'
       desc: '我的宗门'
+    - icon: help-icon_2
+      title: '(/|#)我的装备'
+      desc: '我的装备'
+    - icon: help-icon_2
+      title: '(/|#)装备 +装备名'
+      desc: '装备'
+    - icon: help-icon_2
+      title: '(/|#)一键装备'
+      desc: '一键装备'
+    - icon: help-icon_2
+      title: '(/|#)卸下 +装备名'
+      desc: '卸下装备'
 - group: 灵器
   list:
     - icon: help-icon_2
       title: '(/|#)升级灵器'
       desc: '升级灵器'
-
+- group: 交易
+  list:
+    - icon: help-icon_2
+      title: '(/|#)开启交易+@对方(或者输入对方的uid(官方的ntqq无法用))'
+      desc: '开启交易'
+    - icon: help-icon_2
+      title: '(/|#)同意交易+@对方(或者输入对方的uid(官方的ntqq无法用))'
+      desc: '同意交易'
+    - icon: help-icon_2
+      title: '(/|#)取消同意交易 + @对方(或者输入对方的uid(官方的ntqq无法用))'
+      desc: '开启交易'
+    - icon: help-icon_2
+      title: '(/|#)添加交易物品+ @对方(或者输入对方的uid(官方的ntqq无法用))*交易的物品名*数量*价格(或者可以这样,交易物品名*数量*数量*物品(这样可以实现物品换物品)) '
+      desc: '开启交易'
+    - icon: help-icon_2
+      title: '(/|#)结算交易+ @对方(或者输入对方的uid(官方的ntqq无法用))'
+      desc: '开启交易'
+    - icon: help-icon_2
+      title: '(/|#)查看交易+ @对方(或者输入对方的uid(官方的ntqq无法用))'
+      desc: '查看交易'
+    - icon: help-icon_2
+      title: '(/|#)委托物品 +物品名*数量*价格'
+      desc: '委托给拍卖行拍卖物品'
+    - icon: help-icon_2
+      title: '(/|#)查看当前拍卖物品'
+      desc: '查看当前拍卖物品'
+    - icon: help-icon_2
+      title: '(/|#)出价 + 价格'
+      desc: '对现在拍卖的物品进行出价'
 - group: 猎妖
   list:
+    - icon: help-icon_2
+      title: '(/|#)当前状态'
+      desc: '查看当前状态'
     - icon: help-icon_2
       title: '(/|#)状态结算'
       desc: '状态结算,可结束状态,比如闭关修炼等'
@@ -116,20 +166,29 @@
     - icon: help-icon_2
       title: '(/|#)击杀+地点名*妖兽名*数量'
       desc: '击杀妖兽地点探索出来的妖兽'
+    - icon: help-icon_2
+      title: '(/|#)查看秘境 +页数(可不加)'
+      desc: '查看秘境'
+    - icon: help-icon_2
+      title: '(/|#)探索秘境+秘境名'
+      desc: '探索秘境'
       
 - group: 打劫
   list:
     - icon: help-icon_2
-      title: '(/|#)打劫+@qq'
+      title: '(/|#)打劫+@qq(或者输入对方的uid(官方的ntqq无法用))'
       desc: '打劫'
     - icon: help-icon_2
-      title: '(/|#)比斗+@qq'
+      title: '(/|#)比斗+@qq(或者输入对方的uid(官方的ntqq无法用))'
       desc: '比斗'
 - group: 治疗
   list:
     - icon: help-icon_2
       title: '(/|#)治疗伤势'
       desc: '治疗伤势'
+    - icon: help-icon_2
+      title: '(/|#)血量纠正'
+      desc: '血量纠正'
 - group: 万界堂
   list:
     - icon: help-icon_2
@@ -138,6 +197,17 @@
     - icon: help-icon_2
       title: '(/|#)购买+商店名*物品名*数量'
       desc: '购买'
+- group: 装备
+  list:
+    - icon: help-icon_2
+      title: '(/|#)装备 + 装备名'
+      desc: '装备'
+
+- group: 排行榜
+  list:
+    - icon: help-icon_2
+      title: '(/|#)境界排行榜 +页数(可不加)'
+      desc: '境界排行榜'
 - group: 统计
   list:
     - icon: help-icon_2
@@ -161,7 +231,10 @@
   list:
     - icon: help-icon_2
       title: '(/|#)使用+物品名*数量'
-      desc: '使用'  
+      desc: '使用' 
+    - icon: help-icon_2
+      title: '(/|#)出售+物品名*数量'
+      desc: '出售'   
 - group: 体质
   list:
     - icon: help-icon_2
@@ -169,7 +242,10 @@
       desc: '觉醒体质'  
     - icon: help-icon_2
       title: '(/|#)强化体质'
-      desc: '强化体质'  
+      desc: '强化体质' 
+    - icon: help-icon_2
+      title: '(/|#)塑造不朽细胞 +细胞数'
+      desc: '花费100万体魄力量塑造不朽细胞'  
 - group: 宗门
   list:
     - icon: help-icon_2
@@ -196,6 +272,9 @@
     - icon: help-icon_2
       title: '(/|#)宗门阵法石'
       desc: '查看宗门阵法石'
+    - icon: help-icon_2
+      title: '(/|#)设置(最高|最低)境界限制+武者境界'
+      desc: '设置境界限制'
      
     
    
@@ -210,5 +289,11 @@
     - icon: help-icon_2
       title: '(/|#)武者同步'
       desc: '同步存档内容'
+    - icon: help-icon_2
+      title: '(/|#)发+东西*数量'
+      desc: '发'
+    - icon: help-icon_2
+      title: '(/|#)全体发+东西*数量'
+      desc: '全体发'
     
 

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>装备属性展示</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 18px;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px rgba(0, 0, 0, 0.6);
+            background-color: #222;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        tr:hover {
+            background-color: #444;
+        }
+
+        tr, th, td {
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>装备属性</h2>
+        <table>
+            <tr>
+                <th>装备</th>
+                <th>类别</th>
+                <th>攻击加成</th>
+                <th>防御加成</th>
+                <th>暴击加成</th>
+                <th>爆伤加成</th>
+                <th>生命加成</th>
+                <th>闪避加成</th>
+                <th>价格</th>
+            </tr>
+            {{if equiment.胸甲}}
+            <tr>
+                <td>{{equiment.胸甲.name}}</td>
+                <td>{{equiment.胸甲.class}}</td>
+                <td>{{equiment.胸甲.攻击加成}}</td>
+                <td>{{equiment.胸甲.防御加成}}</td>
+                <td>{{equiment.胸甲.暴击加成}}</td>
+                <td>{{equiment.胸甲.爆伤加成}}</td>
+                <td>{{equiment.胸甲.生命加成}}</td>
+                <td>{{equiment.胸甲.闪避加成}}</td>
+                <td>{{equiment.胸甲.价格}}</td>
+            </tr>
+            {{/if}}
+            {{if equiment.腿甲}}
+            <tr>
+                <td>{{equiment.腿甲.name}}</td>
+                <td>{{equiment.腿甲.class}}</td>
+                <td>{{equiment.腿甲.攻击加成}}</td>
+                <td>{{equiment.腿甲.防御加成}}</td>
+                <td>{{equiment.腿甲.暴击加成}}</td>
+                <td>{{equiment.腿甲.爆伤加成}}</td>
+                <td>{{equiment.腿甲.生命加成}}</td>
+                <td>{{equiment.腿甲.闪避加成}}</td>
+                <td>{{equiment.腿甲.价格}}</td>
+            </tr>
+            {{/if}}
+            {{if equiment.鞋子}}
+            <tr>
+                <td>{{equiment.鞋子.name}}</td>
+                <td>{{equiment.鞋子.class}}</td>
+                <td>{{equiment.鞋子.攻击加成}}</td>
+                <td>{{equiment.鞋子.防御加成}}</td>
+                <td>{{equiment.鞋子.暴击加成}}</td>
+                <td>{{equiment.鞋子.爆伤加成}}</td>
+                <td>{{equiment.鞋子.生命加成}}</td>
+                <td>{{equiment.鞋子.闪避加成}}</td>
+                <td>{{equiment.鞋子.价格}}</td>
+            </tr>
+            {{/if}}
+            {{if equiment.法宝}}
+            <tr>
+                <td>{{equiment.法宝.name}}</td>
+                <td>{{equiment.法宝.class}}</td>
+                <td>{{equiment.法宝.攻击加成}}</td>
+                <td>{{equiment.法宝.防御加成}}</td>
+                <td>{{equiment.法宝.暴击加成}}</td>
+                <td>{{equiment.法宝.爆伤加成}}</td>
+                <td>{{equiment.法宝.生命加成}}</td>
+                <td>{{equiment.法宝.闪避加成}}</td>
+                <td>{{equiment.法宝.价格}}</td>
+            </tr>
+            {{/if}}
+        </table>
+    </div>
+</body>
+</html>

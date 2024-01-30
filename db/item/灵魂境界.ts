@@ -16,8 +16,7 @@ export const 灵魂境界 = sequelize.define("灵魂境界", {
 await 灵魂境界.sync({ force: true });
 // 道具列表.sync({ alter: true }) 
 let list = await Read_json(4,'/灵魂境界.json');
-list.forEach(item => {
-    灵魂境界.create({
+let records = list.map(item => ({
         name:item.name,
         灵魂力量:item.灵魂力量,
         攻击加成:item.攻击加成,
@@ -26,5 +25,6 @@ list.forEach(item => {
         暴击加成:item.暴击加成,
         爆伤加成:item.爆伤加成,
         闪避加成:item.闪避加成
-    })
-})
+    }));
+await 灵魂境界.bulkCreate(records);
+

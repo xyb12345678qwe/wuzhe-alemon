@@ -45,5 +45,7 @@ export {user_bag} from './models/user_bag.js'
 export {user_equiment} from './models/user_equiment.js'
 export {user_status} from './models/user_status.js'
 export * from './models/user_zongmen.js'
+export * from './information/transaction_record.js'
+export * from './information/auction.js'
 export * from './item/item.js'
 // await generateUID(1)

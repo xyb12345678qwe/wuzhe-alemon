@@ -42,7 +42,28 @@
             <div class="item">
               <div class="item_int">名字：{{item.name}}</div>
               <div class="item_int">类别：{{item.type}}</div>
+              {{if item.class}}
+              <div class="item_int">类型：{{item.class}}</div>
+              {{/if}}
               <div class="item_int">品级：{{item.品级}}</div>
+              {{if item.攻击加成}}
+              <div class="item_int">攻击加成：{{item.攻击加成}}</div>
+              {{/if}}
+              {{if item.防御加成}}
+              <div class="item_int">防御加成：{{item.防御加成}}</div>                                                            
+              {{/if}}
+              {{if item.暴击加成}}
+              <div class="item_int">暴击加成：{{item.暴击加成}}</div>
+              {{/if}}
+              {{if item.爆伤加成}}
+              <div class="item_int">爆伤加成：{{item.爆伤加成}}</div>
+              {{/if}}
+              {{if item.生命加成}}
+              <div class="item_int">生命加成：{{item.生命加成}}</div>
+              {{/if}}
+              {{if item.闪避加成}}
+              <div class="item_int">闪避加成：{{item.闪避加成}}</div>
+              {{/if}}
               <div class="item_int">价格：{{item.价格}}</div>
               <div class="item_int">数量：{{item.数量}}</div>
               <div class="item_int">介绍：{{item.介绍}}</div>

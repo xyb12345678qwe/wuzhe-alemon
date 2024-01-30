@@ -1,12 +1,10 @@
 import {APlugin ,AMessage,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages } from "../../api";
-import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点, create_zongmen,all_zongmen} from '../../model/gameapi';
+    checkNameExists,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages, 
+    getCacheData,AEvent} from "../../api";
+import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点, create_zongmen,all_zongmen, user_zongmen} from '../../model/gameapi';
 export class zongmen extends APlugin  {
     constructor() {
         super({
-            /** 功能名称 */
-            name: 'zongmen',
-            /** 功能描述 */
             dsc: '基础模块',
             event: 'message',
             /** 优先级，数字越小等级越高 */
@@ -48,9 +46,43 @@ export class zongmen extends APlugin  {
                     reg: /^(#|\/)?宗门阵法石$/,
                     fnc: 'shi',
                 },
+                {
+                    reg: /^(#|\/)?设置(最高|最低)境界限制.*$/,
+                    fnc: 'shezhijingjie',
+                },
             ],
             });
         }
+    async shezhijingjie(e:AEvent){
+        const usr_qq = e.user_id;
+        let results =await Read_player(1,usr_qq);
+        let player = results.player;
+        if(!player.宗门) return e.reply(`你没有宗门`);
+        if(player.宗门.身份 != "宗主") return e.reply(`你不是宗主无法设置`);
+        let results2 =await Read_player(2,player.宗门.宗主);
+        let zong = results2.zongmen;
+        let 武者境界 = await getCacheData('武者境界');
+        const regex = /(最高|最低)/;
+        const str = e.msg;
+        const splitArray = str.split(regex);
+        if (splitArray.length > 1) {
+        const value = splitArray[1]; // 获取匹配到的值，即最高或最低
+        if (value === '最高') {
+            let name = str.replace(/(\/|#)?设置最高境界限制/, "").trim();
+            if(!武者境界.find(item => item.name == name)) return e.reply(`没有这个境界`);
+            zong.加入最高境界 = name;
+            e.reply(`设置完成当前最高境界为${name}`)
+        } else if (value === '最低') {
+            let name = str.replace(/(\/|#)?设置最低境界限制/, "").trim();
+            if(!武者境界.find(item => item.name == name)) return e.reply(`没有这个境界`);
+            zong.加入最低境界 = name;
+            e.reply(`设置完成当前最低境界为${name}`)
+        }
+        } else {
+         return e.reply(`字符串中不包含最高或最低`)
+        }
+        await Write_player(player.宗门.宗主, false, false,false,false,zong);
+    }
     async shi(e:AMessage):Promise<boolean>{
         const usr_qq = e.user_id;
         const playerExists = await existplayer(1, usr_qq);
@@ -62,12 +94,12 @@ export class zongmen extends APlugin  {
         let results2 =await Read_player(2,player.宗门.宗主);
         let zong = results2.zongmen;
         zong.宗门阵法石= zong.宗门阵法石 || {
-        "阵法石1": "无",
-        "阵法石2": "无",
-        "阵法石3": "无",
-        "阵法石4": "无",
-        "阵法石5": "无",
-        "阵法石6": "无"
+            "阵法石1": "无",
+            "阵法石2": "无",
+            "阵法石3": "无",
+            "阵法石4": "无",
+            "阵法石5": "无",
+            "阵法石6": "无"
         };
         await Write_player(player.宗门.宗主, false, false,false,false,zong)
         const replyMessage = Object.keys(zong.宗门阵法石).map(key => `${key}:${zong.宗门阵法石[key]}`).join('\r');
@@ -127,14 +159,16 @@ export class zongmen extends APlugin  {
         const usr_qq = e.user_id;
         const playerExists = await existplayer(1, usr_qq);
         if (!await existplayer(2, usr_qq)) return e.reply(`没有宗门`);
-        const name = e.msg.replace(/(\/|#)?给予身份/, "").trim();
+        const [name,user_id] = e.msg.replace(/(\/|#)给予身份/, "").trim().split("*").map(code => code.trim());
         if (!playerExists || !name) return false;
-        let results =await Read_player(1,usr_qq);
-        let player = results.player
-        let B_usr_qq = await getB_qq(e, "id");
-        if (B_usr_qq == 0) return e.reply('欸，你要给予谁身份');
-        if (B_usr_qq == 1) return e.reply(`对方无存档`);
-        let B_results = await Read_player(1,B_usr_qq);
+        let {player} =await Read_player(1,usr_qq);
+        let B_usr_qq:any = e.at_user;
+        if (!B_usr_qq) {
+            if (!user_id) return e.reply('欸，你要给予谁身份');
+            else B_usr_qq = { id: user_id };
+          }
+        if (!await existplayer(2, B_usr_qq.id)) return e.reply(`对方无存档`);
+        let B_results = await Read_player(1,B_usr_qq.id);
         let B_player = B_results.player;
         if (player.宗门.身份 !== "宗主") return e.reply(`不是宗主无法给予身份`);
         if (name == "宗主") return e.reply(`没死，无法传位`);
@@ -142,13 +176,17 @@ export class zongmen extends APlugin  {
         if (name !== "成员" && name !== "长老" && name !== '副宗主') return e.reply(`没有这个身份`);
         let results2 =await Read_player(2,player.宗门.宗主);
         let zong = results2.zongmen;
-        const shenfen = B_player.宗门.身份;
-        zong[shenfen] = zong[shenfen].filter(item => item !== usr_qq);
-        zong[name].push(B_usr_qq);
-        player.宗门.身份 = name;
+        let shenfen = B_player.宗门.身份;
+        console.log(shenfen);
+        zong[shenfen] = zong[shenfen].filter(item => item !== B_player.uid);
+        console.log(zong[shenfen]);
+        const uid = await finduid(B_usr_qq.id)
+        zong[name].push(uid.uid);
+        shenfen = name;
         await Promise.all([
             Write_player(usr_qq, player, false,false,false),
             Write_player(player.宗门.宗主, false, false,false,false,zong),
+            Write_player(B_usr_qq.id,B_player),
         ]);
         return e.reply(`给予成功`);
     }
@@ -178,32 +216,41 @@ export class zongmen extends APlugin  {
         if (await existplayer(2, usr_qq)) return e.reply(`已有宗门`);
         const name = e.msg.replace(/(\/|#)?加入宗门/, "").trim();
         if (!playerExists || !name) return false;
-        let list = await all_zongmen();
-        let json = await Promise.all(list.map(async (user) => {
-            const results = await Read_player(2, user);
-            const zongmen = results
-            return {
-                name: zongmen.name,
-                mainqq: zongmen.宗主
-            };
-        }));
-        const zongmen = json.find(item => item.name === name);
+        let results =await Read_player(1,usr_qq);
+        let player = results.player;
+        
+        let json:any = await user_zongmen.findAll({raw:true});
+        const zongmen = json.find(item => item.name == name);
         if (!zongmen) return e.reply(`没有这个宗门`);
-        let results2 =await Read_player(2,zongmen.mainqq);
+        let 武者境界 = await getCacheData('武者境界');
+        const highestRank = zongmen.加入最高境界;
+        const lowestRank = zongmen.加入最低境界;
+        
+        if (highestRank !== "无" || lowestRank !== "无") {
+          const highestRankIndex = 武者境界.findIndex(item => item.name === highestRank);
+          const lowestRankIndex = 武者境界.findIndex(item => item.name === lowestRank);
+          const playerRankIndex = 武者境界.findIndex(item => item.name === player.武者境界);
+        
+          if (highestRankIndex !== -1 && playerRankIndex > highestRankIndex) {
+            return e.reply(`你超过了${name}的最高境界限制`);
+          } else if (lowestRankIndex !== -1 && playerRankIndex < lowestRankIndex) {
+            return e.reply(`你没有达到${name}的最低境界限制`);
+          }
+        }
+        let results2 =await Read_player(2,zongmen.宗主);
         let zong = results2.zongmen;
         const idlist = await finduid(usr_qq)
-        zong.成员.push(idlist.id);
-        let results =await Read_player(1,usr_qq);
-        let player = results.player
+        zong.成员.push(idlist.uid);
+        
         player.宗门 = {
-            宗主: zongmen.mainqq,
+            宗主: zongmen.宗主,
             身份: "成员",
             奉献值:0,
             俸禄_time:0,
         };
         await Promise.all([
             Write_player(usr_qq, player, false,false,false),
-            Write_player(player.宗门.宗主, false, false,false,false,zong),
+            Write_player(zongmen.宗主, false, false,false,false,zong),
         ]);
         return e.reply(`加入成功`);
     }
@@ -268,20 +315,15 @@ export class zongmen extends APlugin  {
         const usr_qq = e.user_id;
         const playerExists = await existplayer(1, usr_qq);
         if (!playerExists) return false;
-        let list = await all_zongmen();
+        let list:any = await user_zongmen.findAll({raw:true})
         let json:any = [];
         for (const user of list) {
-            const results2 = await Read_player(2,user)
-            let zongmen = results2.zongmen;
-            console.log(zongmen);
-            const people = zongmen?.长老?.length + zongmen?.副宗主?.length + zongmen?.成员?.length + 1;
-            zongmen.人数 = people;
-            json.push(zongmen);
+            const people = user?.长老?.length + user?.副宗主?.length + user?.成员?.length + 1;
+            user.人数 = people;
+            json.push(user);
         }
-        console.log(json);
-
         let temp = {
-        json: json
+            json: json
         };
         const img = await oImages('/resources/html/zongmenlist/zongmenlist.html', temp);
         if (img) e.reply(img);

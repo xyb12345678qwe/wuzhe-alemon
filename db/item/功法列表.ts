@@ -24,7 +24,8 @@ export const 功法列表 = sequelize.define("功法列表", {
       },
     "zhandou":DataTypes.JSON,
     "万界堂":DataTypes.JSON,
-    "能否消耗":DataTypes.JSON
+    "能否消耗":DataTypes.JSON,
+    灵气:DataTypes.JSON,
 }, {
     ...TableConfig
 });
@@ -42,6 +43,7 @@ list.forEach(item => {
         zhandou:item.zhandou,
         功效:item.功效,
         万界堂:item.万界堂,
-        能否消耗:item.能否消耗
+        能否消耗:item.能否消耗,
+        灵气:item.灵气
     })
 })

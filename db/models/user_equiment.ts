@@ -1,22 +1,22 @@
 import {TableConfig,sequelize, DataTypes} from '../index.js'
 export const user_equiment = sequelize.define("user_equiment", {
     uid: DataTypes.INTEGER,
-    武器: {
+    胸甲: {
         type: DataTypes.JSON,
         defaultValue: null
-      },
-      胸甲: {
+    },
+    腿甲: {
         type: DataTypes.JSON,
         defaultValue: null
-      },
-      腿甲: {
-        type: DataTypes.JSON,
+    },
+    鞋子: {
+      type: DataTypes.JSON,
+      defaultValue: null
+   },
+    法宝: {
+       type: DataTypes.JSON,
         defaultValue: null
-      },
-      法宝: {
-        type: DataTypes.JSON,
-        defaultValue: null
-      }
+    }
 },{
   ...TableConfig
 });

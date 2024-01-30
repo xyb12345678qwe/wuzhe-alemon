@@ -1,11 +1,9 @@
-import {plugin ,AMessage,Show,puppeteer,findIndexByName,Strand,pic,Read_yaml,Write_json,oImages, Read_json} from '../../api'
+import {plugin ,AMessage,findIndexByName,Strand,Read_yaml,Write_json,oImages, Read_json, refresh_uid_cache} from '../../api'
 import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,getLingqi} from '../../model/gameapi';
 let shezhi ={}
 export class start extends plugin  {
 	constructor() {
 		super({
-			/** 功能名称 */
-			name: 'start',
 			/** 功能描述 */
 			dsc: '基础模块',
 			event: 'message',
@@ -75,7 +73,10 @@ export class start extends plugin  {
 			],
 		});
 	}
-  async add(e: AMessage): Promise<boolean>{
+  state: {
+    [key: string]: number
+  } = {}
+  async add(e: AMessage){
     const usr_qq =e.user_id;
     if (!await existplayer(1, usr_qq)) return e.reply(`请先连接uid`);
     const name = e.msg.replace(/(\/|#)?添加uid可连接qq/, "").trim();
@@ -83,9 +84,12 @@ export class start extends plugin  {
     const id2:any = await finduid(name);
     if(id2) return e.reply("对方已有绑定账号")
     if(!id.允许绑定账号.includes(usr_qq))id.允许绑定账号.push(usr_qq);
-    return e.reply(`添加成功 `)
+    user_id.upsert({ uid: id.uid,...id});
+    e.reply(`添加成功 `)
+    await refresh_uid_cache();
+    return 
   } 
-  async lianid(e: AMessage): Promise<boolean>{
+  async lianid(e: AMessage){
     const usr_qq =e.user_id;
     if (await existplayer(1, usr_qq)) return false;
     const name = e.msg.replace(/(\/|#)?连接uid/, "").trim();
@@ -93,15 +97,19 @@ export class start extends plugin  {
     if(!id.允许绑定账号.includes(usr_qq)) return e.reply(`你无资格绑定此账号`)
     id.绑定账号.push(usr_qq)
     user_id.upsert({ uid: id.uid,...id});
-    return e.reply(`连接成功  `)
+    e.reply(`连接成功  `)
+    await refresh_uid_cache();
+    return
   }
-  async duanid(e: AMessage): Promise<boolean>{
+  async duanid(e: AMessage){
     const usr_qq =e.user_id;
     if (!await existplayer(1, usr_qq)) return false;
     const id:any = await finduid(usr_qq);
-    id.绑定账号 = id.绑定账号.filter(item => item !== usr_qq);
+    id.绑定账号 = id.绑定账号.filter(item => item != usr_qq);
     user_id.upsert({ uid: id.uid,...id});
-    return e.reply(`断开成功  `)
+    e.reply(`断开成功 `)
+    await refresh_uid_cache();
+    return 
   }
   async id(e: AMessage): Promise<boolean>{
     return e.reply(e.user_id)
@@ -110,15 +118,17 @@ export class start extends plugin  {
     const usr_qq =e.user_id;
     if (await existplayer(1, usr_qq)) return this.information(e);
     e.reply(`请输入你的性别`);
-    this.setContext('1')
+    this.subscribe('1')
+    // this.setContext('1')
     return false;
   }
   async 1(e: AMessage): Promise<boolean>{
     const usr_qq =e.user_id;
     !/男|女/.test(this.e.msg) && e.reply('输入错误，自动选择男')
     shezhi[usr_qq] = this.e.msg || '男'
-    this.finish('1')
-    this.setContext('2')
+    this.cancel()
+    this.subscribe('2')
+    // this.setContext('2')
     e.reply(`请输入你的名字`)
     return false;
   }
@@ -126,8 +136,10 @@ export class start extends plugin  {
     const usr_qq = e.user_id;
     console.log(shezhi[usr_qq]);
     await create_player(e,usr_qq,this.e.msg,shezhi[usr_qq])
-    this.finish('2')
+    // this.finish('2')
+    this.cancel()
     e.reply(`创建存档成功`)
+    e.reply(e.segment.at(usr_qq) + `开局礼包名:开局礼包`)
   }
   async xuan(e: AMessage): Promise<boolean>{
     const usr_qq = e.user_id;
@@ -228,8 +240,6 @@ export class start extends plugin  {
     if (!await existplayer(1, usr_qq)) return false;
     let result = await Read_player(1,usr_qq);
     let player:any = result.player;
-    console.log(player);
-    
     let rank_wuzhe: string = player.武者境界;
     let expmax_wuzhe:any =await 武者境界.findAll({raw:true});
     expmax_wuzhe = expmax_wuzhe.find(item => item.name === rank_wuzhe)?.灵气;
@@ -246,12 +256,6 @@ export class start extends plugin  {
     let strand_hun: any = await Strand(player.灵魂力量, expmax_hun);
 
     let equipment: any = result.equipment;
-    console.log(player);
-    // console.log(mainWeapon.id);
-    
-    // console.log(mainWeapon);
-    
-    console.log(equipment);
     let get_data: {
     name: string;
     宣言: string;
@@ -286,7 +290,6 @@ export class start extends plugin  {
   await Write_player(usr_qq,player,false,false,false);
   const img = await oImages('/resources/html/player/player.html',get_data)
   if(img) return e.reply(img)
-  // await pic(e, get_data, `get_playerData`)
   return false;
   }
 
@@ -312,7 +315,6 @@ export class start extends plugin  {
     }
     const img = await oImages('/resources/html/lingqi/lingqi.html',get_data)
     if(img) return e.reply(img)
-    // await pic(e, get_data, `get_lingqi`); //导入到html
     return;
   }   
 }

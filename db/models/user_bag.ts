@@ -16,5 +16,5 @@ export const user_bag = sequelize.define("user_bag", {
 },{
   ...TableConfig
 });
-// user_bag.sync()
+await user_bag.sync({ alter: true }) 
 // user_bag.create({uid:1234}) 

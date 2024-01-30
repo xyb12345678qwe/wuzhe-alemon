@@ -3,8 +3,6 @@ import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂
 export class work extends APlugin  {
 	constructor() {
 		super({
-			/** 功能名称 */
-			name: 'work',
 			/** 功能描述 */
 			dsc: '基础模块',
 			event: 'message',

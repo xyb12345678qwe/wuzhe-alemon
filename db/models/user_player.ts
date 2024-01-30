@@ -57,6 +57,10 @@ export const user_player = sequelize.define("user_player", {
           type: DataTypes.JSON,
           defaultValue: 0
           },
+          修炼加成: {
+            type: DataTypes.JSON,
+            defaultValue: 0
+          },
           当前生命: {
           type: DataTypes.JSON,
           defaultValue: 1000
@@ -79,7 +83,7 @@ export const user_player = sequelize.define("user_player", {
           },
           技能栏: {
           type: DataTypes.JSON,
-          defaultValue: { 技能栏1: '无', 技能栏2: '无', 技能栏3: '无', 技能栏4: '无', 技能栏5: '无' }
+          defaultValue: { 功法技能栏1: '无', 功法技能栏2: '无', 功法技能栏3: '无', 功法技能栏4: '无', 功法技能栏5: '无' }
           },
           宗门:{
             type: DataTypes.JSON,
@@ -93,6 +97,14 @@ export const user_player = sequelize.define("user_player", {
             type: DataTypes.JSON,
             defaultValue: "无"
           },
+          不朽细胞: {
+            type: DataTypes.JSON,
+            defaultValue: 0 
+          },
+          秘境目标: {
+            type: DataTypes.JSON,
+            defaultValue: {}
+          }
 
   }, {
     ...TableConfig

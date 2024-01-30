@@ -1,11 +1,10 @@
-import { APlugin ,AMessage,pic ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages,Read_json,Write_json} from "../../api";
+import { APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject,oImages,Read_json,Write_json,
+    getCacheData} from "../../api";
 import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表,丹方} from '../../model/gameapi';   
 export class learn extends APlugin  {
     constructor() {
         super({
-            /** 功能名称 */
-            name: 'learn',
             /** 功能描述 */
             dsc: '基础模块',
             event: 'message',
@@ -50,7 +49,7 @@ export class learn extends APlugin  {
             if (!playerExists) return false;
             const [results,gongfa_list, peizhi]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     :any= await Promise.all([
                 Read_player(1,usr_qq),
-                功法列表.findAll({raw:true}),
+                getCacheData('功法列表'),
                 Read_json(2)
             ]);
             let player = results.player;

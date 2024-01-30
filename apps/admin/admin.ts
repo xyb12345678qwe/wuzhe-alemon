@@ -1,10 +1,9 @@
-import { APlugin ,AMessage,Show,puppeteer,base,AppName, DirPath } from '../../api'
+import { APlugin ,AMessage,AppName, DirPath } from '../../api'
 import { exec } from 'child_process'
 
 export class admin extends APlugin  {
   constructor() {
     super({
-      name: '管理|更新插件',
       dsc: '管理和更新代码',
       event: 'message',
       priority: 400,

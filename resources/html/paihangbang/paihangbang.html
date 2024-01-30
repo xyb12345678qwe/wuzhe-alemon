@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>玩家境界排行榜</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 30px;
+            color: #ffcc00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .rank-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .rank-item {
+            margin-bottom: 10px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rank-item.rank {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background-color: #ffcc00;
+            color: #222;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
+        .rank-item .player-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .rank-item .player-name {
+            margin-left: 10px;
+            color: gold;
+            font-weight: bold;
+            font-size: 20px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .rank-item .player-level {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .page-number {
+            font-size: 18px;
+            color: #ffcc00;
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">玩家境界排行榜</h1>
+        </div>
+        {{each paihang item}}
+        <ul class="rank-list">
+            <li class="rank-item">
+                <div class="rank">{{item.名次}}</div>
+                <div class="player-info">
+                    <span class="player-name ranked-player" ><font color = {{item.color}}>{{item.name}}【{{item.uid}}】</font></span>
+                    <span class="player-level"><font color = {{item.color}}>【{{item.武者境界}}】</font></item></span>
+                </div>
+            </li>
+        </ul>
+        {{/each}}
+        <div class="footer">
+            <span class="page-number">{{pages}}/{{all_pages}}</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
-import { AMessage } from "../api";
-import { Sequelize, user_bag, user_equiment, user_id,user_player, user_status,Op, 灵器列表,sequelize, literal,user_zongmen, 体质} from "./index";
+import { AMessage,getUIDCache,refresh_uid_cache } from "../api";
+import { Sequelize, user_bag, user_equiment, user_id,user_player, user_status,Op, 灵器列表,sequelize, literal,user_zongmen, 体质, transaction_record} from "./index";
 /**
  * 
  * @param num [1:判断存档 2:判断宗门]
@@ -18,25 +18,28 @@ export async function existplayer(num,usr_qq) {
     else return true;
 }
 export async function create_player(e,usr_qq: string,name: string,性别: string){
-    try {
-        const lingqi:any = await getLingqi(e);
-        const uid = await generateUID()
-        await Promise.all([
-            user_id.create({uid:uid, 绑定账号:[usr_qq],允许绑定账号:[usr_qq]}),
-            user_player.create({uid:uid,                                                                                                                                                                                                    
-                name:name,
-                性别:性别,
-                本命灵器:lingqi
-            }),
-            user_equiment.create({uid:uid}),
-            user_bag.create({uid:uid}),
-            user_status.create({uid:uid})
-        ])
-        console.log('创建存档成功');
-    } catch (error) {
-        console.error('创建存档失败:', error);
-        throw error;
-    }
+  try {
+    const lingqi:any = await getLingqi(e);
+    const uid = await generateUID();
+  
+    const createUserPromise = user_id.create({ uid: uid, 绑定账号: [usr_qq], 允许绑定账号: [usr_qq] });
+    const createPlayerPromise = user_player.create({ uid: uid, name: name, 性别: 性别, 本命灵器: lingqi });
+    const [createUser, createPlayer]:any = await Promise.all([createUserPromise, createPlayerPromise]);
+  
+    createPlayer.攻击加成 += Number(lingqi.攻击加成);
+    createPlayer.防御加成 += Number(lingqi.防御加成);
+    createPlayer.暴击加成 += Number(lingqi.暴击加成);
+    createPlayer.爆伤加成 += Number(lingqi.爆伤加成);
+    createPlayer.生命加成 += Number(lingqi.生命加成);
+    createPlayer.闪避加成 += Number(lingqi.闪避加成);
+  
+    await Promise.all([createUser, createPlayer, user_equiment.create({ uid: uid }), user_bag.create({ uid: uid }), user_status.create({ uid: uid })]);
+    await refresh_uid_cache();
+    console.log('创建存档成功');
+  } catch (error) {
+    console.error('创建存档失败:', error);
+    throw error;
+  }
 }
 export async function create_zongmen(usr_qq:string,name:string,time:string) {
   try {
@@ -48,45 +51,43 @@ export async function create_zongmen(usr_qq:string,name:string,time:string) {
     throw error;
 }
 }
-/**
- * 
- * @param num [1:判断存档 2:判断宗门]
- * @param usr_qq 
- * @returns 
- */
-export async function Read_player(num,usr_qq: string) {
-    // user_id.belongsTo(user_player, { foreignKey: 'uid', targetKey: 'uid' });
-    // user_id.belongsTo(user_bag, { foreignKey: 'uid', targetKey: 'uid' });
-    // user_id.belongsTo(user_equiment, { foreignKey: 'uid', targetKey: 'uid' });
-    // user_id.belongsTo(user_status, { foreignKey: 'uid', targetKey: 'uid' });
-    try {
-        let id:any = await finduid(usr_qq);
-        let result: any = {};
-        if(num==2) {
-          result.zongmen = await user_zongmen.findOne({ where: { 宗主: id.uid }, raw: true });
-        }
-        if(num == 1){
-          console.log(id.uid);
-          let [player ,bag, equipment, status]:any = await Promise.all([
-            user_player.findOne({ where: { uid: id.uid },raw:true }),
-            user_bag.findOne({ where: { uid: id.uid },raw:true }),
-            user_equiment.findOne({ where: { uid: id.uid },raw:true }),
-            user_status.findOne({ where: { uid: id.uid },raw:true })
-        ]);
-            result.id = id;
-            result.player = player;
-            result.bag = bag;
-            result.equipment = equipment;
-            result.status = status;
-        }
-        return result;
-    } catch (error) {
-        // 处理错误
-        console.error('出现问题:', error);
-        throw error;
+export async function Read_player(num: number, usr_qq: string) {
+  try {
+    const id = await finduid(usr_qq);
+    let result: any = {};
+    if (num === 2) {
+      result.zongmen = await user_zongmen.findOne({ where: { 宗主: id.uid }, raw: true });
+    } else if (num === 1) {
+      const promises: any[] = [];
+      promises.push(user_player.findOne({ where: { uid: id.uid }, raw: true }));
+      promises.push(user_bag.findOne({ where: { uid: id.uid }, raw: true }));
+      promises.push(user_equiment.findOne({ where: { uid: id.uid }, raw: true }));
+      promises.push(user_status.findOne({ where: { uid: id.uid }, raw: true }));
+      const [player, bag, equipment, status] = await Promise.all(promises);
+      result.id = id;
+      result.player = player;
+      result.bag = bag;
+      result.equiment = equipment;
+      result.status = status;
     }
+    return result;
+  } catch (error) {
+    // 处理错误
+    console.error('出现问题:', error);
+    throw error;
+  }
 }
 export async function finduid(usr_qq: string) {
+  let cache = await getUIDCache();
+  if (cache.length > 0) {
+    const cacheMap = new Map(cache.map(item => [item.uid, item]));
+    const cachedItemByAccount = Array.from(cacheMap.values()).find(item =>
+      item.绑定账号.includes(usr_qq)
+    );
+    if (cachedItemByAccount) return cachedItemByAccount;
+    const cachedItemById = cacheMap.get(usr_qq);
+    if (cachedItemById) return cachedItemById;
+  }
   let result: any = await user_id.findOne({
     where: {
       [Op.or]: [
@@ -99,25 +100,40 @@ export async function finduid(usr_qq: string) {
   return result;
 }
 
-export async function Write_player(usr_qq: string, playerData: any | false, bagData: any | false, equipmentData: any | false, statusData: any | false,zongmen?:any|false) {
-    try {
-      let id:any = await finduid(usr_qq);
-      if (id) {
-        const promises:any = [];
-        if (playerData) promises.push(user_player.upsert({ uid: id.uid, ...playerData }));
-        if (bagData) promises.push(user_bag.upsert({ uid: id.uid, ...bagData }));
-        if (equipmentData) promises.push(user_equiment.upsert({ uid: id.uid, ...equipmentData }));
-        if (statusData) promises.push(user_status.upsert({ uid: id.uid, ...statusData }));
-        if(zongmen)promises.push(user_zongmen.upsert({ "宗主": id.uid, ...zongmen }));
-        // 等待所有写入操作完成
-        await Promise.all(promises);
-        console.log("写入成功");
+export async function Write_player(usr_qq: string, playerData: any | false, bagData?: any | false, equipmentData?: any | false, statusData?: any | false, zongmen?: any | false) {
+  try {
+    const id: any = await finduid(usr_qq);
+    if (id) {
+      const promises: Promise<any>[] = [];
+      const upsertData: { uid: string } = { uid: id.uid };
+      if (playerData) Object.assign(upsertData, playerData);
+      promises.push(user_player.upsert(upsertData));
+      if (bagData) {
+        const bagUpsertData: { uid: string } = { uid: id.uid };
+        Object.assign(bagUpsertData, bagData);
+        promises.push(user_bag.upsert(bagUpsertData));
       }
-    } catch (error) {
-      console.error('写入出现问题:', error);
-      throw error;
+      if (equipmentData) {
+        const equipmentUpsertData: { uid: string } = { uid: id.uid };
+        Object.assign(equipmentUpsertData, equipmentData);
+        promises.push(user_equiment.upsert(equipmentUpsertData));
+      }
+      if (statusData) {
+        const statusUpsertData: { uid: string } = { uid: id.uid };
+        Object.assign(statusUpsertData, statusData);
+        promises.push(user_status.upsert(statusUpsertData));
+      }
+      if (zongmen) {
+        const zongmenUpsertData: { uid: string } = { uid: id.uid, ...zongmen };
+        promises.push(user_zongmen.upsert(zongmenUpsertData));
+      }
+      await Promise.all(promises);
     }
+  } catch (error) {
+    console.error('写入出现问题:', error);
+    throw error;
   }
+}
 export async function all_zongmen() {
   const zongmen:any = await user_zongmen.findAll({ attributes: ['宗主'], raw: true });
   return zongmen.map(zong => zong.宗主);
@@ -271,7 +287,7 @@ const 权重: Record<string, number> = {
   低级灵器: 50,
   中级灵器: 30,
   高级灵器: 15,
-  帝器: 2,
+  帝器: 10,
   };
   
   const 权重2: Record<string, number> = {
@@ -282,3 +298,43 @@ const 权重: Record<string, number> = {
   圣级体质: 10,
   神级体质: 5,
   };
+export async function findTransaction(uid_1, uid_2):Promise<any>{ 
+  let transaction:any = await transaction_record.findAll({raw:true});
+  let transaction1 = transaction.find(item => item.交易对象 == uid_2 && item.开启交易者 == uid_1 && item.结束状态 == "未结束"
+  ||item.交易对象 == uid_1 && item.开启交易者 == uid_2 && item.结束状态 == "未结束" );
+  return transaction1;
+//   const transaction1 = await transaction_record.findOne({
+//     where: {
+//       "开启交易者": Number(uid_1),
+//       "交易对象": Number(uid_2),
+//       "结束状态": "未结束"
+//     },
+//     raw:true
+//   });
+//  if(transaction1) return transaction1;
+//   const transaction2 = await transaction_record.findOne({
+//     where: {
+//       "开启交易者": uid_2,
+//       "交易对象": uid_1,
+//       "结束状态": "未结束"
+//     },
+//     raw:true
+//   });
+//   return transaction2
+}
+export async function updateTransaction(updatedData): Promise<any> {
+  try {
+    // const transactions:any = await transaction_record.findAll({ raw: true });
+    // const transactionToUpdate = transactions.find(item => (item.交易对象 == uid_2 && item.开启交易者 == uid_1 && item.结束状态 == "未结束") || (item.交易对象 == uid_1 && item.开启交易者 == uid_2 && item.结束状态 == "未结束"));
+
+      const updatedTransaction = await transaction_record.update(updatedData, {
+        where: {
+          id: updatedData.id
+        }
+      });
+      return updatedTransaction;
+    }catch (error) {
+    console.error("更新交易记录时发生错误:", error);
+    throw error;
+  }
+}

@@ -1,23 +1,17 @@
 import yaml from 'js-yaml';
-import {AMessage,Show,puppeteer,AppName,DirPath,fs,app,createPicture} from '../api'
+import {AMessage,AppName,DirPath,fs,app,createPicture,equiment_type as type, getCacheData} from '../api'
 import path from 'path';
-import {createHtml, screenshotByFile  } from 'alemonjs'
-import { writeFileSync } from 'fs'
-import art from 'art-template'
-import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表} from './gameapi.js';
+import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid, 道具列表, 功法列表, 装备列表} from './gameapi.js';
+import { ALunchConfig,Puppeteer,createImage } from 'alemonjs';
+import { join, basename } from "path";
+
 /**
  * @param directory 文件
  * @param data 数据
  * @returns
  */
 export async function oImages(directory: string, data: any = {}):Promise<string | false | Buffer> {
-  // const { template, AdressHtml } = createHtml(AppName, `${DirPath}${directory}`)
-  // writeFileSync(AdressHtml, art.render(template, data))
-  // return screenshotByFile(AdressHtml, {
-  //   SOptions: { type: 'jpeg', quality: 90 },
-  //   tab: 'body',
-  //   timeout: 2000
-  // })
+  // 创建截图工具
   const img = await createPicture({
     /**
      * 插件名
@@ -25,7 +19,7 @@ export async function oImages(directory: string, data: any = {}):Promise<string 
     AppName,
     tplFile: `${DirPath}${directory}`,
     data,
-    SOptions: { type: 'jpeg', quality: 90 },
+    SOptions: { type: 'jpeg', quality: 100 },
   }).catch((err) => {
     console.log(err);
     return false;
@@ -33,9 +27,8 @@ export async function oImages(directory: string, data: any = {}):Promise<string 
   return img;
 }
 
-
- export const data = path.join(DirPath, 'resources', 'data')
- export const __PATH = {
+export const data = path.join(DirPath, 'resources', 'data')
+export const __PATH = {
    help: path.join(data, 'help', 'help.yaml'), 
    list: path.join(data, 'item'), 
    shezhi: path.join(DirPath,"shezhi",'all_shezhi.json') 
@@ -150,17 +143,7 @@ export async function Add_生命(usr_qq: string, num: number) {
   }
 
   
-  export async function pic(e: AMessage, get_data: any, show: string): Promise<void> {
-    const data1 = await new Show(e)[show](get_data);
-    const img = await puppeteer.screenshot('pic', { ...data1 });
-    if (img !== false) {
-      e.reply(img);
-    } else {
-      // 处理截图失败的情况
-      console.log('截图失败');
-    }
-  }
-  
+
   /**
    * 
    * @param {*} name name数据
@@ -194,6 +177,7 @@ export async function Strand(now: number, max: number) {
     };
   }
 export async function getNonZeroKeys(obj:any) {
+  if(!obj.秘境) obj.秘境 = 0;
   for (let key in obj) {
     if(key == "uid" ||key == "id" ) continue
     if (obj[key] != 0) return key;
@@ -204,13 +188,12 @@ export async function getNonZeroKeys(obj:any) {
 export async function startstatus(e:AMessage,状态:string,返回状态:string){
   const now = Date.now();
   const results:any = await getUserStatus(e);
-  let status =results.status
-  console.log(status);
+  let status =results.status;
   if (!status) return false;
   const x = await getNonZeroKeys(status);
   if(x)return e.reply(`你正在${x}中`);
   status[状态] = now;
-  await Write_player(e.user_id,false,false,false,status)
+  await Write_player(e.user_id,false,false,false,status);
   return e.reply(`开始${返回状态}`);
 }
 export async function stopstatus(e:AMessage,状态:string,结算物品:string,结束回答物品:string,结算概率:number){
@@ -219,12 +202,12 @@ export async function stopstatus(e:AMessage,状态:string,结算物品:string,�
   let status =results.status
   if (!status) return false;
   let player = results.player;
-  if(status[状态] === 0)return e.reply(`你没在${状态}`)
-  const time = (now - status[状态])/1000/60
-  const money = Math.floor(time * 结算概率);
+  if(status[状态] === 0)return e.reply(`你没在${状态}`);
+  const time = (now - status[状态])/1000/60;
+  const money = Math.floor(time * (结算概率+player.修炼加成));
   player[结算物品] +=money;
   status[状态] = 0;
-  await Write_player(e.user_id,player,false,false,status)
+  await Write_player(e.user_id,player,false,false,status);
   return e.reply(`结束成功，获得${money}${结束回答物品}`);
 }
 export async function getUserStatus(e:AMessage) {
@@ -245,25 +228,18 @@ export async function msToTime(duration: number): Promise<string> {
     return `${paddedHours}时${paddedMinutes}分${paddedSeconds}秒`;
   }
 export async function gettupo(e:AMessage,玩家境界:string,data境界名:string,突破物品:string){
-  const results:any = await getUserStatus(e);
-  let player =results.player
-  let xx;
-  switch (data境界名) {
-    case '武者境界':
-      xx = await 武者境界.findAll({ raw: true });
-      break;
-    case '体魄境界':
-      xx = await 体魄境界.findAll({ raw: true });
-      break;
-    case '灵魂境界':
-      xx = await 灵魂境界.findAll({ raw: true });
-      break;
-  }
-  const now_level_id = await findIndexByName(player[玩家境界],xx) +1;
-  if(now_level_id > xx.length) return e.reply(`已达${data境界名}上限`)
-  const now = xx.find(item => item.name = player[玩家境界]);
+  const usr_qq = e.user_id;
+  if (!await existplayer(1, usr_qq)) return false;
+  const results: any = await Read_player(1,usr_qq);
+  let { player } = results;
+  let xx = await getCacheData(data境界名);
+  const now_level_id = xx.findIndex(item => item.name == player[玩家境界]) + 1;
+  console.log(now_level_id);
+  if (now_level_id >= xx.length) return e.reply(`已达${data境界名}上限`);
+  console.log(xx.length);
+  const now = xx.find(item => item.name === player[玩家境界]);
   let x = xx[now_level_id];
-  if(player[突破物品] < now[突破物品]) return e.reply(`${突破物品}不足`);
+  if (player[突破物品] < now[突破物品]) return e.reply(`${突破物品}不足`);
   let rand = Math.random();
   let prob = 1 - now_level_id / 60;
   if (rand > prob) {
@@ -284,19 +260,18 @@ export async function gettupo(e:AMessage,玩家境界:string,data境界名:strin
     else if (bad_rand > 0.4) replyMessage = messages[2];
     else if (bad_rand > 0.6) replyMessage = messages[3];
     else if (bad_rand > 0.3) replyMessage = messages[4];
-  
-    return e.reply(replyMessage);
+    e.reply(replyMessage);
   } else {
-    player[突破物品] -= now[突破物品];
     player[玩家境界] = x.name;
-    const attributes = ['攻击加成', '防御加成', '暴击加成', '爆伤加成', '生命加成', '闪避加成'];
+    const attributes = ['攻击加成', '防御加成', '暴击加成', '爆伤加成', '生命加成'];
     attributes.forEach(attribute => {
       player[attribute] += x[attribute];
     });
-    player.生命上限 += x.生命加成
-    await Write_player(e.user_id, player, false, false, false);
-    return e.reply(`突破成功,目前境界${x.name}`);
+    player.生命上限 += x.生命加成;
+    e.reply(`突破成功,目前境界${x.name}`);
   }
+   player[突破物品] -= now[突破物品];
+    await Write_player(e.user_id, player, false, false, false);
 }
 export async function getstring(string:string,...包含的字符串:string[]){
   包含的字符串.forEach(name =>{
@@ -329,6 +304,9 @@ export function 技能栏(player:any){
   if (!player || !player.技能栏) {
       player = player || {}; // 如果player不存在，则创建一个空对象
       player.技能栏 = {
+        增益型技能栏1:"无",
+        增益型技能栏2:"无",
+        增益型技能栏3:"无",
         功法技能栏1: '无',
         功法技能栏2: '无',
         功法技能栏3: '无',
@@ -336,66 +314,133 @@ export function 技能栏(player:any){
         功法技能栏5: '无',
       };
     }
+    player.技能栏.增益型技能栏1 = player.技能栏.增益型技能栏1 || "无";
+    player.技能栏.增益型技能栏2=player.技能栏.增益型技能栏2 || "无";
+    player.技能栏.增益型技能栏3=player.技能栏.增益型技能栏2 || "无";
+    return player;
+}
+// 辅助函数
+export async function createPlayerObject(player:any) {
+  return {
+    name: player.name,
+    暴击加成: player.暴击加成,
+    爆伤加成: player.爆伤加成,
+    攻击加成: player.攻击加成,
+    闪避加成: player.闪避加成,
+    防御加成: player.防御加成,
+    当前生命: player.当前生命 || player.生命加成 ,
+    灵气: player.灵气 || 1000, 
+    技能栏: player.技能栏 || {
+      增益型技能栏1:"无",
+      增益型技能栏2:"无",
+      增益型技能栏3:"无",
+      功法技能栏1: '无',
+      功法技能栏2: '无',
+      功法技能栏3: '无',
+      功法技能栏4: '无',
+      功法技能栏5: '无',
+    }
+  };
 }
 async function 随机选择技能(技能栏) {
   console.log(技能栏);
-  // 从技能栏中过滤出名字中含有"功法技能栏"且对应值不为'无'的技能名
-  const 技能名数组 = Object.entries(技能栏)
-    .filter(([key, value]) => key.includes('功法技能栏') && value !== '无')
+
+  const 有效技能名数组 = Object.entries(技能栏)
+    .filter(([key, value]) => (key.includes('增益型技能栏') || key.includes('功法技能栏')) && value !== '无')
     .map(([key, value]) => value);
-  console.log(技能名数组);
-  if (技能名数组.length === 0) {
-    // 如果没有符合条件的技能，可以添加适当的处理逻辑
-    console.log('没有符合条件的技能');
+
+  if (有效技能名数组.length === 0) {
+    console.log('没有可用技能');
     return;
   }
 
-  // 从过滤后的技能名数组中随机选择一个值
-  const 随机索引 = Math.floor(Math.random() * 技能名数组.length);
-  const 随机技能名 = 技能名数组[随机索引];
+  // 从有效技能名数组中随机选择一个值
+  const 随机索引 = Math.floor(Math.random() * 有效技能名数组.length);
+  const 随机技能名 = 有效技能名数组[随机索引];
   console.log('随机选择的技能:', 随机技能名);
-  console.log(随机技能名);
-  
+
   return 随机技能名;
-  
 }
 
-//战力计算
-export async function player_zhanli(player:any){
-  const attackBonus = player["攻击加成"];
-  const defenseBonus = player["防御加成"];
-  const healthBonus = player["当前血量"];
-  const power = 100 + attackBonus * 1.5 + defenseBonus * 1.2 + healthBonus * 0.8;
-  return power;
-}
+
 //战斗系统
 export async function player_zhandou(attacker:any, defender:any) {
+  console.log(attacker);
+  console.log(defender);
   let msg:string[] = [];
   let huihe = 1;
-  let A_damage = 0;
-  let B_damage = 0;
+  let A_damage:number = 0;
+  let B_damage:number = 0;
+  let setting = await Read_json(2);
+  let skill = setting.find(item => item.type == "功法类");
   // 战斗循环
+  const gongfa_list = await getCacheData('功法列表')
+  
   while (attacker.当前生命 > 0 && defender.当前生命 > 0) {
     if (huihe === 100) {
       let winner = Math.random() < 0.5 ? attacker : defender; // 随机选择攻击者或防守者作为失败者
       msg.push(`达到100回合，随机选择${winner.name}失败`);
       break;
     }
+    if(huihe%5 == 0){
+      attacker.灵气 += attacker.灵气*1.3
+      msg.push(`${attacker.name}回复了${attacker.灵气*0.3}点灵气`)
+      defender.灵气 += defender.灵气*1.3
+      msg.push(`${defender.name}回复了${defender.灵气*0.3}点灵气`)
+    }
       try {
         let A_技能_name = await 随机选择技能(attacker.技能栏);
         let B_技能_name = await 随机选择技能(defender.技能栏);
-        let A_技能:any = await 功法列表.findOne({where:{name:A_技能_name},raw:true});
-        let B_技能:any = await 功法列表.findOne({where:{name:B_技能_name},raw:true});
-        msg.push(`${attacker.name}${A_技能.zhandou}造成${A_技能.功效.攻击加成}伤害`)
-        defender.当前生命 -= A_技能.功效.攻击加成;
-        A_damage += A_技能.攻击加成;
-        msg.push(`${defender.name}${B_技能.zhandou}造成${B_技能.功效.攻击加成}伤害`)
-        B_damage += B_技能.功效.攻击加成
+         
+        if(A_技能_name){
+            let A_技能:any = gongfa_list.find(item => item.name == A_技能_name);
+            console.log(skill.技能栏功法.includes(A_技能_name));
+          if(skill.技能栏功法.includes(A_技能_name)){
+            console.log(A_技能.灵气 );
+            console.log(attacker.灵气);
+            
+            if(A_技能.灵气 <= attacker.灵气){ 
+              let 技能伤害 = await skill_damage(attacker,A_技能)
+              msg.push(`${attacker.name}${A_技能.zhandou}造成${技能伤害}伤害`)
+              defender.当前生命 -= 技能伤害;
+              A_damage += 技能伤害;
+              attacker.灵气 -= A_技能.灵气
+              console.log(`A_技能:${技能伤害}`);
+              console.log(`A:${A_damage}`);
+           }
+          }else if(skill.增益型功法.includes(A_技能_name)){
+            if(A_技能.灵气 < attacker.灵气){ 
+             attacker = await getBuffedSkills(A_技能.name,attacker);
+             attacker.灵气 -= A_技能.灵气
+            }
+          }
+        }
+        if(B_技能_name){
+          let B_技能:any =gongfa_list.find(item => item.name == B_技能_name);
+          if(skill.技能栏功法.includes(B_技能_name)){
+            if(B_技能.灵气 < defender.灵气){ 
+            let 技能伤害 = await skill_damage(defender,B_技能)
+            msg.push(`${defender.name}${B_技能.zhandou}造成${技能伤害}伤害`)
+            attacker.当前生命 -= 技能伤害;
+            B_damage += 技能伤害;
+            defender.灵气 -= B_技能.灵气;
+            console.log(`B_技能:${技能伤害}`);
+            console.log(`B:${B_damage}`);
+            }
+          }else if(skill.增益型功法.includes(B_技能_name)){
+            if(B_技能.灵气 < attacker.灵气){ 
+             attacker = await getBuffedSkills(B_技能.name,attacker);
+             defender.灵气 -= B_技能.灵气;
+            }
+          }
+        }
         // 计算攻击者对防守者造成的伤害
         let shanghaiA = await calculateDamage(attacker, defender);
         defender.当前生命 -= shanghaiA;
         A_damage += shanghaiA;
         msg.push(`${attacker.name}对${defender.name}造成了${shanghaiA}点伤害`);
+        console.log(shanghaiA);
+        console.log(`A:${A_damage}`);
         // 判断防守者是否被击败
         if (defender.当前生命 <= 0) {
             msg.push(`${defender.name}战败了`);
@@ -406,30 +451,60 @@ export async function player_zhandou(attacker:any, defender:any) {
         attacker.当前生命 -= shanghaiB;
         B_damage += shanghaiB;
         msg.push(`${defender.name}对${attacker.name}造成了${shanghaiB}点伤害`);
+        console.log(shanghaiB);
+        console.log(`B:${B_damage}`);
         // 判断攻击者是否被击败
         if (attacker.当前生命 <= 0) {
-            msg.push(`${attacker.name}[${attacker.uid}]了`);
+            msg.push(`${attacker.name}失败了`);
             break;
         }
       } catch (error) {
           // 处理伤害计算出现的错误
+          console.log(error.message);
+
           msg.push('伤害计算出现错误：' + error.message);
           break;
       }
       huihe++;
   }
+  if(!A_damage) A_damage = 0;
+  if(!B_damage) B_damage=0;
   // 输出日志和返回结果
   console.log(msg);
   console.log(`总共进行了${huihe - 1}回合`);
   console.log(`${attacker.name}造成了${A_damage}点伤害`);
   console.log(`${defender.name}造成了${B_damage}点伤害`);
+  
   return {
       result: msg,
       A_damage: A_damage,
       B_damage: B_damage
   };
 }
-async function calculateDamage(attacker:any, defender:any) {
+/**
+ * 
+ * @param player 玩家存档
+ * @param skill 功法数组
+ */
+export async function skill_damage(player:any,skill:any):Promise<number> {
+  const all_critical_hit = parseInt((player.暴击加成 + skill.功效.暴击加成).toFixed(2)); //计算总暴击，保留2位小数
+  const all_critical_damage = parseInt((player.爆伤加成+skill.功效.爆伤加成).toFixed(2));//计算总暴伤，保留2位小数
+  let attack_damage = Math.round(player.攻击加成 + skill.功效.攻击加成);
+  let rand =Math.random();
+  if(rand < all_critical_hit) attack_damage *= (1 + all_critical_damage);
+  return Math.round(attack_damage);
+}
+/**
+ * 
+ * @param 功法名
+ */
+export async function getBuffedSkills(skill_name:string,player:any):Promise<any> {
+  if(skill_name == "金钟罩"){
+    player.防御加成 += 300;
+  }
+  return player;
+}
+async function calculateDamage(attacker:any, defender:any):Promise<number> {
   let shanghai = attacker.攻击加成 - defender.防御加成;
   if (shanghai < 0) {
     shanghai = 0;
@@ -442,71 +517,56 @@ async function calculateDamage(attacker:any, defender:any) {
   if (Math.random() <= defender.闪避加成) {
     shanghai = 0;
   }
-  console.log(shanghai);
-  return shanghai;
+  return Math.round(shanghai);
 }
-//判断有没有造成暴击伤害
-export async function panbaoji(攻击力:number,对方防御力:number,计算过后函数baoji的值:number){
-  let shanghai =攻击力- 对方防御力;
-  if(计算过后函数baoji的值>shanghai) return '暴击伤害'
-  return ''
-}
-//判断造不造成暴击伤害
-export async function baoji(暴击率:number,暴击伤害:number,攻击力:number,对方防御力:number){
-  let rand =Math.random();
-  let msg =[]
-  if(rand <= 暴击率){
-    let shanghai =攻击力*暴击伤害 - 对方防御力;
-    return shanghai;
-  }else{
-    let shanghai =攻击力 - 对方防御力;
-    return shanghai;
-  }
-}
-export async function Add_bag_thing(usr_qq:string, thing_name:string,数量:number,thing:any) {
-  let results = await Read_player(1, usr_qq);
-  let bag = results.bag
+export async function Add_bag_thing(usr_qq: string, thing_name: string, 数量: number, thing: any) {
+  let { bag } = await Read_player(1, usr_qq);
+  数量 = parseInt(String(数量))
+  if (thing === "无" || !thing.type) thing = (await findThings(thing_name)).one_item;
   let thing_type = thing.type;
-  if (thing === "无") {
-    let x;
-    const typeMap = {
-      道具: async () => (x = await 道具列表.findAll({ raw: true })),
-      功法: async () => (x = await 功法列表.findAll({ raw: true })),
-      已学习功法: async () => (x = await 功法列表.findAll({ raw: true })),
-      default: () => (x = []),
-    };
-    typeMap[thing.type]();
-    thing = x.find(item => item.name === thing_name);
+
+  const boolean1 = thing_type == "已学习功法";
+  let updatedBag = { ...bag };
+
+  if (!updatedBag[thing_type]) {
+    updatedBag[thing_type] = [];
   }
-  let bag_thing = bag[thing_type].find(item => item.name === thing_name);
-  const boolean1 = thing_type == "已学习功法"
-  if(boolean1) 数量 = -数量 //转为正数
-  console.log(数量);
-  if (!bag_thing){                            
-     bag[thing_type].push({
-      ...thing,
-      数量: 数量
-    });
-    console.log('新增加成功');
-  }else{
-    let x = await updateItemQuantity(bag[thing_type], thing_name, 数量);
-    if(x) bag[thing_type] = x;
+
+  let itemIndex = updatedBag[thing_type].findIndex(item => item.name === thing_name);
+
+  if (itemIndex !== -1) {
+    updatedBag[thing_type][itemIndex].数量 += Number(数量);
+    if (updatedBag[thing_type][itemIndex].数量 <= 0) {
+      updatedBag[thing_type].splice(itemIndex, 1);
+    }
+  } else {
+    updatedBag[thing_type].push({ ...thing, 数量: Number(数量) });
   }
-   if(boolean1){
-    let x = await updateItemQuantity(bag.功法, thing_name, -数量);
-    if(x) bag.功法 = x;
-   }
-  console.log('增加成功');
-  await Write_player(usr_qq,false,bag,false,false);
+
+  if (boolean1) {
+    if (!updatedBag.功法) {
+      updatedBag.功法 = [];
+    }
+
+    let itemIndex = updatedBag.功法.findIndex(item => item.name === thing_name);
+    if (itemIndex !== -1) {
+      updatedBag.功法[itemIndex].数量 -= Number(数量);
+      if (updatedBag.功法[itemIndex].数量 <= 0) {
+        updatedBag.功法.splice(itemIndex, 1);
+      }
+    }
+  }
+
+  await Write_player(usr_qq, false, updatedBag, false, false);
 }
-export function updateItemQuantity(itemList: any, itemName: string, quantity: number) {
-  const x = itemList.find(item => item.name == itemName);
-  x.数量 += quantity;
-  if(x.数量<=0){
-    return itemList.filter(item => item.name != itemName);
-  }
-  return false;  
-}                                                                                                                                                                                                                                                                       
+
+// 使用Promise.all()优化
+export async function Add_bag_things(usr_qq: string, things: { name: string, 数量: number, thing: any }[]) {
+  const promises = things.map(async item => {
+    await Add_bag_thing(usr_qq, item.name, item.数量, item.thing);
+  });
+  await Promise.all(promises);
+}                                                                                                                                                                                                                                                      
 //选出胜利者
 export async function determineWinner(msg: string[], A_player_name: string, B_player_name: string): Promise<string | null> {
   const winner: string | null = (() => {
@@ -528,19 +588,7 @@ export async function getB_qq(e:AMessage,string:string){
   if(string == "id")return at.id;
   return await Read_player(1,at.id)
 }
-// 辅助函数
-export async function createPlayerObject(player:any) {
-  return {
-    name: player.name,
-    暴击加成: player.暴击加成,
-    爆伤加成: player.爆伤加成,
-    攻击加成: player.攻击加成,
-    闪避加成: player.闪避加成,
-    防御加成: player.防御加成,
-    当前生命: player.当前生命,
-    技能栏: player.技能栏
-  };
-}
+
 /**
  * 
  * @param {*} startTime  开始的时间
@@ -578,19 +626,21 @@ export async function wanjietang_thing(){
 	return combinedArray
 }
 export async function findThings(name) {
-  const itemInProps = await findInList(name, 道具列表);
-  if (itemInProps.one_item) return itemInProps;
-  const itemInSkills = await findInList(name, 功法列表);
-  if(itemInSkills.one_item)return itemInSkills;
-  return false;
+  const props = await findInList(name, 道具列表);
+  if (props.one_item) return props;
+  const skills = await findInList(name, 功法列表);
+  if(skills.one_item)return skills;
+  let equiment = await findInList(name,装备列表);
+  return equiment;
 }
 
 async function findInList(name, list) {
   const items = await list.findAll({ raw: true });
+  const oneItem = items.find(item => item.name === name);
   return {
-      all_item:items,
-      one_item: items.find(item => item.name === name),
-  }
+    all_item: items,
+    one_item: oneItem,
+  };
 }
 export const config = {
   attackBonus: 200,
@@ -617,3 +667,40 @@ export const handleBattle = async (player, robot) => {
   const name = await determineWinner(msg.result, player.name, robot.name);
   return { name, damage: msg.A_damage };
 };
+export async function filter_equiment(x: any, equiment: any) {
+  let equiment_zhanli = 0;
+  let highestThing = x[0];
+  if (x.length > 1) {
+    if (equiment[highestThing.class]) {
+      equiment_zhanli = calculateZhanli(equiment[highestThing.class]);
+    }
+    let highestZhanli = calculateZhanli(highestThing);
+    for (let i = 1; i < x.length; i++) {
+      const currentThing = x[i];
+      const currentZhanli = calculateZhanli(currentThing);
+      if (currentZhanli > highestZhanli) {
+        highestThing = currentThing;
+        highestZhanli = currentZhanli;
+      }
+    }
+    console.log(`${highestThing}`);
+    if (highestZhanli < equiment_zhanli) {
+      return equiment[highestThing.class];
+    }
+    return highestThing;
+  } else if (x.length == 1) {
+    const currentThing = x[0];
+    let currentZhanli = calculateZhanli(currentThing);
+    console.log(currentZhanli);
+    if (equiment[highestThing.class]) equiment_zhanli = calculateZhanli(equiment[highestThing.class]);
+    if (currentZhanli > equiment_zhanli) return currentThing;
+    console.log(`length:1`);
+    return equiment[highestThing.class] || currentThing;
+  } else {
+    return null;
+  }
+}
+
+function calculateZhanli(item: any) {
+  return Object.values(item).reduce((total: number, prop: any) => total + prop, 0) as number;
+}

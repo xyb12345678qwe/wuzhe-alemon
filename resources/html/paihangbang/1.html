@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>玩家境界排行榜</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .title {
+      font-size: 30px;
+      color: #ffcc00;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .rank-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 10px;
+    }
+    
+    .rank-item {
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .rank-item.rank {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background-color: #ffcc00;
+      color: #222;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+    
+    .rank-item .player-info {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+    
+    .rank-item .player-name {
+      margin-left: 10px;
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    
+    .rank-item .player-level {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .page-number {
+      font-size: 18px;
+      color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">玩家境界排行榜</h1>
+    </div>
+    <ul class="rank-list">
+      <li class="rank-item">
+        <div class="rank">1</div>
+        <div class="player-info">
+          <span class="player-name">玩家A</span>
+          <span class="player-level">Level100</span>
+        </div>
+      </li>
+      <li class="rank-item">
+        <div class="rank">2</div>
+        <div class="player-info">
+          <span class="player-name">玩家B</span>
+          <span class="player-level">Level95</span>
+        </div>
+      </li>
+      <li class="rank-item">
+        <div class="rank">3</div>
+        <div class="player-info">
+          <span class="player-name">玩家C</span>
+          <span class="player-level">Level90</span>
+        </div>
+      </li>
+      <!-- 添加更多的排名项 -->
+    </ul>
+    <div class="footer">
+      <span class="page-number">1/1</span>
+    </div>
+  </div>
+</body>
+</html>

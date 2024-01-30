@@ -1,3 +1,4 @@
+import { DirPath } from "../../api.js";
 import { readFileSync, writeFileSync, watch, mkdirSync } from "fs";
 import { join, basename } from "path";
 import template from "art-template";
@@ -23,8 +24,6 @@ let isBrowser = false;
  * 实例配置
  */
 let LaunchCfg;
-let browserPool = []; // 新增浏览器实例池
-
 /**
  * 配置浏览器参数
  * @param val
@@ -32,12 +31,6 @@ let browserPool = []; // 新增浏览器实例池
 export function setLanchConfig(val) {
   LaunchCfg = val;
 }
-async function ensureBrowser() {
-    if (!isBrowser) {
-      if (!(await startChrom())) return false;
-    }
-    return true;
-  }
 /**
  * 截图并返回buffer
  * @param htmlPath 绝对路径
@@ -48,11 +41,13 @@ async function ensureBrowser() {
  * @returns
  */
 export async function screenshot(htmlPath, Options) {
-const { SOptions, tab = "body", timeout = 120000 } = Options;
+  const { SOptions, tab = "body", timeout = 120000 } = Options;
   /**
    * 检测是否开启
    */
-  if (!(await ensureBrowser())) return false;
+  if (isBrowser == false) {
+    if (!(await startChrom())) return false;
+  }
   if (pic <= RestartControl) {
     /**
      * 记录次数
@@ -87,41 +82,50 @@ const { SOptions, tab = "body", timeout = 120000 } = Options;
  * @returns
  */
 export async function startPage(htmlPath, SOptions, tab, timeout) {
-    try {
-      if (!(await ensureBrowser())) return false;
-      console.info("[puppeteer] start");
-  
-      // 从连接池中获取浏览器实例
-      const browserInstance = browserPool.pop() || browser;
-  
-      const page = await browserInstance.newPage();
-      await page.goto(`file://${htmlPath}`, { timeout });
-      const body = await page.$(tab);
-      console.info("[puppeteer] success");
-  
-      const img = await body.screenshot(SOptions).catch((err) => {
-        console.error(err);
-        return false;
-      });
-  
-      // 将浏览器实例放回连接池
-      browserPool.push(browserInstance);
-  
-      if (global?.segment) return global?.segment?.image(img);
-      return img;
-    } catch (err) {
+  try {
+    /**
+     * 开始
+     */
+    if (!isBrowser) {
+      if (!(await startChrom())) return false;
+    }
+    console.info("[puppeteer] start");
+    /**
+     * 实例化
+     */
+    const page = await browser.newPage();
+    /**
+     * 挂载网页
+     */
+    await page.goto(`file://${htmlPath}`, {
+      timeout,
+    });
+    /**
+     * 获取元素
+     */
+    const body = await page.$(tab);
+    /**
+     * 得到图片
+     */
+    console.info("[puppeteer] success");
+    const img =await body.screenshot(SOptions).catch((err) => {
       console.error(err);
       return false;
-    }
+    });
+    if (global?.segment) return global?.segment?.image(img)
+    return img;
+  } catch (err) {
+    console.error(err);
+    return false;
   }
+}
 /**
  * 启动浏览器
  * @returns
  */
 export async function startChrom() {
   try {
-    const launchOptions = { ...LaunchCfg, headless: "new" };
-    browser = await puppeteer.launch(launchOptions);
+    browser = await puppeteer.launch(LaunchCfg);
     isBrowser = true;
     console.info("[puppeteer] open success");
     return true;
@@ -185,13 +189,8 @@ export async function createPicture(Options) {
     data,
     tab,
     timeout,
-    SOptions
+    SOptions = { type: "jpeg", quality: 90 },
   } = Options;
-//   SOptions = { type: "jpeg", quality: 90 },
-  /**
-   * 插件路径
-   */
-  const basePath = join(process.cwd(), "plugins", AppName);
   /**
    * 写入地址
    */
@@ -241,7 +240,9 @@ export async function createPicture(Options) {
          * 去掉路径开头的 @ 符号
          * 转义\/
          */
-        const absolutePath = join(basePath, relativePath.substr(1)).replace(
+        console.log(DirPath);
+        console.log(relativePath.substr(1));
+        const absolutePath = join(DirPath, relativePath.substr(1)).replace(
           /\\/g,
           "/"
         );
@@ -265,7 +266,7 @@ export async function createPicture(Options) {
   /**
    * 对生成后的地址截图
    */
-  const img = await screenshot(AddressHtml, {
+  return await screenshot(AddressHtml, {
     SOptions,
     tab,
     timeout,
@@ -273,5 +274,4 @@ export async function createPicture(Options) {
     console.error(err);
     return false;
   });
-  return img;
 }

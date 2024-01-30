@@ -1,12 +1,9 @@
-import { Show,APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
-    checkNameExists,player_zhanli,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject, Read_json,createCertificationRobot, handleBattle } from "../../api";
+import { APlugin ,AMessage ,findIndexByName,Strand,getNonZeroKeys,startstatus,stopstatus,gettupo,getstring,checkZeroValue,checkAllZeroValues,
+    checkNameExists,Add_bag_thing, player_zhandou,determineWinner,getB_qq,createPlayerObject, Read_json,createCertificationRobot, handleBattle } from "../../api";
 import { create_player,existplayer,Read_player,Write_player,武者境界, 灵魂境界,体魄境界,user_id,finduid,妖兽地点,功法列表, 道具列表, 丹方,猎杀妖兽地点} from '../../model/gameapi';
 export class renzheng extends APlugin  {
 	constructor() {
 		super({
-			/** 功能名称 */
-			name: 'renzheng',
-			/** 功能描述 */
 			dsc: '基础模块',
 			event: 'message',
 			/** 优先级，数字越小等级越高 */
