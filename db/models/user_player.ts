@@ -101,6 +101,10 @@ export const user_player = sequelize.define("user_player", {
             type: DataTypes.JSON,
             defaultValue: 0 
           },
+          不朽灵器: {
+            type: DataTypes.JSON,
+            defaultValue: 0 
+          },
           秘境目标: {
             type: DataTypes.JSON,
             defaultValue: {}

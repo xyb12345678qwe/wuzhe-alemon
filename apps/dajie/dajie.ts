@@ -41,7 +41,7 @@ export class dajie extends APlugin  {
         const A_player = await createPlayerObject(player);
         const BB_player = await createPlayerObject(B_player);
         let msg = await player_zhandou(A_player, BB_player);
-        let name = await determineWinner(msg.result, player.name, B_player.name);
+        let name = msg.winner;
         let temp = msg.result;
         if (name === player.name) {
           const money = Math.round(B_player.金钱 * 0.25);
@@ -77,14 +77,13 @@ export class dajie extends APlugin  {
         const A_player = await createPlayerObject(player);
         const BB_player = await createPlayerObject(B_player);
         let msg = await player_zhandou(A_player, BB_player);
-        let name = await determineWinner(msg.result, player.name, B_player.name);
         let temp = msg.result;
         player.灵气 += 50;
         player.体魄力量 += 100;
         B_player.灵气 += 50;
         B_player.体魄力量 += 100;
-        B_player.当前生命 -= Number(msg.A_damage);
-        player.当前生命 -= Number(msg.B_damage);
+        B_player.当前生命 -= Number(msg.A_damage) || 0;
+        player.当前生命 -= Number(msg.B_damage) || 0;
         await Write_player(usr_qq,player,false,false,false);
         await Write_player(String(B_id),player,false,false,false);
         let get_data = { temp };

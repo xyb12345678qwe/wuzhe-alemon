@@ -141,9 +141,6 @@ export async function Add_生命(usr_qq: string, num: number) {
       console.log(error);
     }
   }
-
-  
-
   /**
    * 
    * @param {*} name name数据
@@ -319,16 +316,23 @@ export function 技能栏(player:any){
     player.技能栏.增益型技能栏3=player.技能栏.增益型技能栏2 || "无";
     return player;
 }
-// 辅助函数
-export async function createPlayerObject(player:any) {
-  return {
+/**
+ * 创建战斗存档
+ * @param player 存档
+ * @returns 
+ */
+export async function createPlayerObject(player:any):Promise<any> {
+  return{
     name: player.name,
     暴击加成: player.暴击加成,
     爆伤加成: player.爆伤加成,
     攻击加成: player.攻击加成,
     闪避加成: player.闪避加成,
     防御加成: player.防御加成,
+    灵器: player.本命灵器 || null,
+    体质: player.体质 || null,
     当前生命: player.当前生命 || player.生命加成 ,
+    生命加成:player.当前生命 || player.生命加成 ,
     灵气: player.灵气 || 1000, 
     技能栏: player.技能栏 || {
       增益型技能栏1:"无",
@@ -340,20 +344,21 @@ export async function createPlayerObject(player:any) {
       功法技能栏4: '无',
       功法技能栏5: '无',
     }
+    
   };
-}
+} 
+
+
 async function 随机选择技能(技能栏) {
   console.log(技能栏);
 
   const 有效技能名数组 = Object.entries(技能栏)
     .filter(([key, value]) => (key.includes('增益型技能栏') || key.includes('功法技能栏')) && value !== '无')
     .map(([key, value]) => value);
-
   if (有效技能名数组.length === 0) {
     console.log('没有可用技能');
     return;
   }
-
   // 从有效技能名数组中随机选择一个值
   const 随机索引 = Math.floor(Math.random() * 有效技能名数组.length);
   const 随机技能名 = 有效技能名数组[随机索引];
@@ -367,6 +372,7 @@ async function 随机选择技能(技能栏) {
 export async function player_zhandou(attacker:any, defender:any) {
   console.log(attacker);
   console.log(defender);
+  let winner;
   let msg:string[] = [];
   let huihe = 1;
   let A_damage:number = 0;
@@ -389,9 +395,15 @@ export async function player_zhandou(attacker:any, defender:any) {
       msg.push(`${defender.name}回复了${defender.灵气*0.3}点灵气`)
     }
       try {
+        let {player: buffedAttacker, msg: buffedMsg} = await getBuffedplayer(attacker, msg);
+        attacker = buffedAttacker;
+        msg = buffedMsg;
+        let {player: buffedDefender, msg: buffedMsg2} = await getBuffedplayer(defender, msg);
+        defender = buffedDefender;
+        msg = buffedMsg2;
         let A_技能_name = await 随机选择技能(attacker.技能栏);
         let B_技能_name = await 随机选择技能(defender.技能栏);
-         
+        
         if(A_技能_name){
             let A_技能:any = gongfa_list.find(item => item.name == A_技能_name);
             console.log(skill.技能栏功法.includes(A_技能_name));
@@ -415,6 +427,11 @@ export async function player_zhandou(attacker:any, defender:any) {
             }
           }
         }
+        if (defender.当前生命 <= 0) {
+          msg.push(`${defender.name}战败了`);
+          winner = attacker.name;
+          break;
+      }
         if(B_技能_name){
           let B_技能:any =gongfa_list.find(item => item.name == B_技能_name);
           if(skill.技能栏功法.includes(B_技能_name)){
@@ -434,6 +451,11 @@ export async function player_zhandou(attacker:any, defender:any) {
             }
           }
         }
+        if (attacker.当前生命 <= 0) {
+          msg.push(`${attacker.name}失败了`);
+          winner = defender.name;
+          break;
+      }
         // 计算攻击者对防守者造成的伤害
         let shanghaiA = await calculateDamage(attacker, defender);
         defender.当前生命 -= shanghaiA;
@@ -444,6 +466,7 @@ export async function player_zhandou(attacker:any, defender:any) {
         // 判断防守者是否被击败
         if (defender.当前生命 <= 0) {
             msg.push(`${defender.name}战败了`);
+            winner = attacker.name;
             break;
         }
           // 计算防守者对攻击者造成的伤害
@@ -456,6 +479,7 @@ export async function player_zhandou(attacker:any, defender:any) {
         // 判断攻击者是否被击败
         if (attacker.当前生命 <= 0) {
             msg.push(`${attacker.name}失败了`);
+            winner = defender.name;
             break;
         }
       } catch (error) {
@@ -478,7 +502,8 @@ export async function player_zhandou(attacker:any, defender:any) {
   return {
       result: msg,
       A_damage: A_damage,
-      B_damage: B_damage
+      B_damage: B_damage,
+      winner
   };
 }
 /**
@@ -493,6 +518,26 @@ export async function skill_damage(player:any,skill:any):Promise<number> {
   let rand =Math.random();
   if(rand < all_critical_hit) attack_damage *= (1 + all_critical_damage);
   return Math.round(attack_damage);
+}
+/**
+ * 
+ * @param player 玩家存档
+ * @param msg 语言
+ */
+export async function getBuffedplayer(player:any,msg:any):Promise<any> {
+  if(player.体质 && player.灵器){
+    if(player.体质.name == "不朽体质" && player.灵器.name == "不朽灵器"){
+      let message = `检查到${player.name}同时拥有不朽体质和不朽灵器,触发特殊加成【不朽】,生命力,战斗力，防御获得大幅度加成`
+      player.攻击加成 += 10000;
+      player.防御加成 += 10000;
+      player.当前生命 += 10000;
+      msg.push(message)
+    }
+  }
+  return {
+    player:player,
+    msg:msg
+  }
 }
 /**
  * 
@@ -568,17 +613,16 @@ export async function Add_bag_things(usr_qq: string, things: { name: string, 数
   await Promise.all(promises);
 }                                                                                                                                                                                                                                                      
 //选出胜利者
-export async function determineWinner(msg: string[], A_player_name: string, B_player_name: string): Promise<string | null> {
-  const winner: string | null = (() => {
-    const lastMsg = msg[msg.length - 1];
-    const A_defeated = lastMsg.includes(A_player_name);
-    const B_defeated = lastMsg.includes(B_player_name);
-    if (A_defeated && !B_defeated) return B_player_name;
-    else if (!A_defeated && B_defeated) return A_player_name;
-    else return null;
-  })();
-  return winner;
+export async function determineWinner(msg: any, A_player_name: string, B_player_name: string): Promise<string | null> {
+  const lastMsg = msg[msg.length - 1];
+  const A_defeated = lastMsg.includes(A_player_name);
+  const B_defeated = lastMsg.includes(B_player_name);
+  if (A_defeated && !B_defeated) return B_player_name;
+  else if (!A_defeated && B_defeated) return A_player_name;
+  else {
+      return null;
   }
+}
 export async function getB_qq(e:AMessage,string:string){
   const at = e.at_user
   if(!at)return 0;

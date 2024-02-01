@@ -51,6 +51,7 @@
           <div class="item">
             <div class="item_title font_left">生命：{{player.生命加成}}</div>
             <div class="item_title font_left">闪避：{{player.闪避加成}}</div>
+            <div class="item_title font_left">修炼加成：{{player.修炼加成}}</div>
           </div>
         </div>
         <div class="user_font wupin">
@@ -101,7 +102,12 @@
               {{if player.体质 != "无"}}
               体质:{{player.体质.name}}【{{player.体质.type}}】<br />
               {{/if}}
+              {{if player.不朽细胞 != 0}}
               不朽细胞:{{player.不朽细胞}} / 1000<br />
+              {{/if}}
+              {{if player.不朽灵器 != 0}}
+              不朽灵器:{{player.不朽灵器}} / 10000000000<br />
+              {{/if}}
             </div>
           </div>
         </div>

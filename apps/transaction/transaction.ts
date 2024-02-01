@@ -92,18 +92,14 @@ export class transaction extends APlugin  {
         }
         if(at.id == e.user_id) return e.reply(`？？？你要和谁交易???`);
         if (!await existplayer(1,at.id)) return e.reply(`${at.name ||at.id}没有账号绑定`);
-        const uid_1 = await finduid(usr_qq);
-        const uid_2 = await finduid(at.id);
-        let jiaoyi =  await findTransaction(uid_1.uid,uid_2.uid);
+        let {bag:B_bag,player:B_player} = await Read_player(1,at.id);
+        let jiaoyi =  await findTransaction(player.uid,B_player.uid);
         if (!jiaoyi) return e.reply(`和${at.name || at.id}没有交易存在`);
-        let results = await Read_player(1,uid_2.uid);
-        let B_bag = results.bag;
-        let B_player = results.player;
         let msg:any = []
 
         if (jiaoyi.开启交易者是否同意 === "否" || jiaoyi.交易对象是否同意 === "否") {
-            const notAgreedUser = jiaoyi.开启交易者是否同意 === "否" ? uid_1 : uid_2;
-            msg.push(`${notAgreedUser === uid_1 ? '你' : at.name || at.id}尚未同意本场交易`);
+            const notAgreedUser = jiaoyi.开启交易者是否同意 === "否" ? player.uid : B_player.uid;
+            msg.push(`${notAgreedUser === player.uid ? '你' : at.name || at.id}尚未同意本场交易`);
         }else if (jiaoyi.交易对象是否同意 === "是" && jiaoyi.开启交易者是否同意 === "是") {
             const thing_list = jiaoyi.交易对象交易物品.filter(item => !item.thing_name); 
             const thing_list2 = jiaoyi.开启交易者交易物品.filter(item => !item.thing_name);  
@@ -114,9 +110,9 @@ export class transaction extends APlugin  {
             player.金钱 = Math.round(player.金钱);
             B_player.金钱 = Math.round(B_player.金钱);                                                 
             jiaoyi.交易总金额 = all_price + all_price2;
-            if (jiaoyi.交易对象 === uid_1.uid) {
-              if(player.金钱 < Number(all_price2))return e.reply(`${uid_1.uid}金钱或金钱不够交易,还差${Number(all_price2)-player.金钱 }`);
-              if(B_player.金钱 < Number(all_price))return e.reply(`${uid_2.uid}金钱或金钱不够交易,还差${Number(all_price)-B_player.金钱 }`);
+            if (jiaoyi.交易对象 === player.uid) {
+              if(player.金钱 < Number(all_price2))return e.reply(`${player.uid}金钱或金钱不够交易,还差${Number(all_price2)-player.金钱 }`);
+              if(B_player.金钱 < Number(all_price))return e.reply(`${B_player.uid}金钱或金钱不够交易,还差${Number(all_price)-B_player.金钱 }`);
               player.金钱 -= Number(all_price2)
               B_player.金钱 += Number(all_price2)
               B_player.金钱 -= Number(all_price)
@@ -153,9 +149,9 @@ export class transaction extends APlugin  {
                   await Add_bag_thing(usr_qq, element.name, -element.num, element);
                 }
               } 
-            }else if (jiaoyi.开启交易者 === uid_1.uid) {
-              if(player.金钱 < Number(all_price2))return e.reply(`${uid_1.uid}金钱或金钱不够交易,还差${Number(all_price)-player.金钱 }`);
-              if(B_player.金钱 < Number(all_price))return e.reply(`${uid_2.uid}金钱或金钱不够交易,还差${Number(all_price2)-B_player.金钱 }`);
+            }else if (jiaoyi.开启交易者 === player.uid) {
+              if(player.金钱 < Number(all_price2))return e.reply(`${player.uid}金钱或金钱不够交易,还差${Number(all_price)-player.金钱 }`);
+              if(B_player.金钱 < Number(all_price))return e.reply(`${B_player.uid}金钱或金钱不够交易,还差${Number(all_price2)-B_player.金钱 }`);
               player.金钱 += Number(all_price2)
               B_player.金钱 -= Number(all_price2)
               B_player.金钱 += Number(all_price)
@@ -210,7 +206,7 @@ export class transaction extends APlugin  {
         const usr_qq = e.user_id;
         let [user_id,thing_name, num,price,thing_name2] = e.msg.replace(/(\/|#)?添加交易物品/, "").trim().split("*").map(code => code.trim());
         if (!await existplayer(1,usr_qq) || !thing_name || !num || !price) return false;
-        let {bag} = await Read_player(1,usr_qq);
+        let {bag,player} = await Read_player(1,usr_qq);
         let at:any = e.at_user;
         if (!at) {
           if (!user_id) return e.reply('请先@对方');
@@ -219,14 +215,12 @@ export class transaction extends APlugin  {
         if(Number(num) < 0) return e.reply(`你要不要看看你自己设置的数量是多少`)
         if(at.id == e.user_id) return e.reply(`？？？你要和谁交易???`);
         if (!await existplayer(1,at.id)) return e.reply(`${at.name||at.id}没有账号绑定`);
-        const uid_1 = await finduid(usr_qq);
-        const uid_2 = await finduid(at.id);
-        let jiaoyi = await findTransaction(uid_1.uid,uid_2.uid);
+        let{bag:B_bag,player:B_player} = await Read_player(1,at.id);
+        let jiaoyi = await findTransaction(player.uid,B_player.uid);
         if (!jiaoyi) return e.reply(`和${at.name||at.id}没有交易存在`);
         let thing = await (await findThings(thing_name)).one_item;
-        let results = await Read_player(1,at.id);
-        let B_bag = results.bag;
-        const transactionType = jiaoyi.交易对象 === uid_1.uid ? '交易对象交易物品' : '开启交易者交易物品';
+        
+        const transactionType = jiaoyi.交易对象 === player.uid ? '交易对象交易物品' : '开启交易者交易物品';
         const transactionData = {
             ...thing,
             num:num,

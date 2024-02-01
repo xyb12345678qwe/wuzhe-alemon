@@ -82,12 +82,8 @@ export class liesha extends APlugin  {
                 createPlayerObject(player),
                 createPlayerObject(huntingLocation)
               ]);
-              
               const msg = await player_zhandou(A_player, B_player);
-              const name = await determineWinner(msg.result, player.name, huntingLocation.name);
-              
-              console.log(msg.result);
-              
+              const name = msg.winner;
               const isWinner = name === player.name;
               const dropItem = isWinner ? calculateDropItem() : null;
               const resultMsg = isWinner
@@ -217,34 +213,35 @@ export class liesha extends APlugin  {
             if(timeInMinutes < 5) return e.reply(`没到时间`);
             let 秘境 = (await getCacheData('秘境列表')).find(item => item.name == player.秘境目标.目标);
             let 怪物列表 = await getCacheData('秘境怪物列表');
-            const filteredData = 怪物列表.filter(item => !item["对应秘境"].includes("荧光洞穴"));
+            console.log(player.秘境目标.目标);
+            const filteredData = 怪物列表.filter(item => item["对应秘境"].some(m => m === player.秘境目标.目标));
             console.log(filteredData.length);
+            console.log(filteredData);
+            
             if (filteredData.length > 0) {
                 const randomItem = filteredData[Math.floor(Math.random() * filteredData.length)];
-                console.log(randomItem);
                 const [A_player, B_player] = await Promise.all([
                     createPlayerObject(player),
                     createPlayerObject(randomItem)
                 ]);
                 const msg = await player_zhandou(A_player, B_player);
-                const name = await determineWinner(msg.result, player.name, B_player.name);
-                console.log(name);
+                const name = msg.winner;
                 if(name == player.name){
-                    const totalProbability = 秘境.thing.reduce((sum, item) => sum + item.probability, 0);
-                        const randomValue = Math.random() * totalProbability;
-                        let low = 0;
-                        let high = 秘境.thing.length - 1;
-                        
-                        while (low < high) {
-                            const mid = Math.floor((low + high) / 2);
-                            if (randomValue < 秘境.thing[mid].probability) {
-                            high = mid;
-                            } else {
-                            low = mid + 1;
-                            }
+                    let totalWeight = 0;
+                    for (let i = 0; i < 秘境.thing.length; i++) {
+                        totalWeight += 秘境.thing[i].权重;
+                     }
+                    const random = Math.random();
+                     let thing_name 
+
+                    let cumulativeWeight = 0;
+                    for (let i = 0; i < 秘境.thing.length; i++) {
+                        cumulativeWeight += 秘境.thing[i].权重;
+                        if (random <= cumulativeWeight) {
+                           thing_name= 秘境.thing[i].name;
+                           break  
                         }
-  
-                    let thing_name = 秘境.thing[low].name;
+                    }
                     let thing = await findThings(thing_name);
                     msg.result.push(`恭喜打赢了${B_player.name}获得${thing_name}*1`);
                     await Add_bag_thing(usr_qq,thing_name,1,thing);

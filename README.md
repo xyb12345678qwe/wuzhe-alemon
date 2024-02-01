@@ -5,24 +5,29 @@
 
 这是一个武者文游的插件
 
+### Enghish document
+
+ [>>>Enghish document<<<](./README/Enghish.md)
 
 ### 访问量
 <br><img src="https://count.getloli.com/get/@:xyb12345678qwe?theme=rule33" /><br>
 ### 安装教程
 
 输入命令:<br>  
-在云崽根目录输入以下命令
+在机器人根目录输入以下命令
 ````
 git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git ./plugins/wuzhe-plugin-alemon/
 
 
-npm i js-yaml
+npm i js-yaml node-cron
 
 ````
 
 ### 使用说明
 
-请先配置数据库mysql,地址`plugin/wuzhe-plugin-alemon/db/mysql`里配置mysql个项数据,配置完后导入提供的sql文件
+请先配置数据库mysql,地址`plugin/wuzhe-plugin-alemon/db/mysql`里配置mysql各项数据,配置完后导入提供的sql文件
+
+注:mysql版本为8
 
 ![输入图片说明](image.png)
 
