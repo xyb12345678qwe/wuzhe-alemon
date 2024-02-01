@@ -1,17 +1,10 @@
 import { Sequelize } from 'sequelize'
                                       //数据库名   账号名   密码
-// export const sequelize = new Sequelize('wuzhe', 'wuzhe', 'xxxxs', {
-//   host: 'xxxx', //地址ip
-//   port: 3306, //端口,默认是3306
-//   dialect: 'mysql',
-//   logging: false, // 禁用日志记录
-// })
-
-export const sequelize = new Sequelize('wuzhe', 'wuzhe', '12345678Qwe',{
-  host: '154.12.83.171',
-  port: 2000,
+export const sequelize = new Sequelize('wuzhe', 'wuzhe', 'xxxxs', {
+  host: 'xxxx', //地址ip
+  port: 3306, //端口,默认是3306
   dialect: 'mysql',
-  logging: false, // 禁用日志记A
+  logging: false, // 禁用日志记录
 })
 
 export const TableConfig = {
