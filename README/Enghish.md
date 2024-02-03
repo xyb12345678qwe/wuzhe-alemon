@@ -17,9 +17,9 @@ This is a plugin for the wuzhe-alemon.
 To install, follow these steps:
 
 ```
-git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git ./plugins/wuzhe-plugin-alemon/
+git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git
 
-git clone https://github.com/xyb12345678qwe/wuzhe-alemon.git ./plugins/wuzhe-plugin-alemon/
+git clone https://github.com/xyb12345678qwe/wuzhe-alemon.git
 
 npm i js-yaml node-cron
 

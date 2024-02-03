@@ -18,7 +18,7 @@
 在机器人根目录输入以下命令
 
 ```
-git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git ./plugins/wuzhe-plugin-alemon/
+git clone https://gitee.com/xyb12345678qwe/wuzhe-plugn-alemon.git
 
 
 npm i js-yaml node-cron
