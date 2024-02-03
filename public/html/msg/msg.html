@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="@/public/html/temp/temp.css"
+    />
+    <link rel="shortcut icon" href="#" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0; /* 更改背景颜色 */
+        margin: 0;
+        padding: 0;
+      }
+
+      .user_bottom1 {
+        width: 80%;
+        margin: 20px auto;
+        background-color: #fff; /* 更改背景颜色 */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+      }
+
+      .use_data {
+        color: #333; /* 更改文本颜色 */
+        font-size: 16px;
+      }
+
+      .user_font {
+        margin-bottom: 10px;
+        padding-left: 10px;
+        border-left: 2px solid #007bff; /* 添加左侧边框 */
+      }
+
+      hr {
+        border: none;
+        height: 1px;
+        background-color: #ccc; /* 更改分隔线颜色 */
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="user_bottom1">
+      <div class="use_data">
+        {{each temp item}}
+        <div class="user_font">{{item}}</div>
+        <hr />
+        {{/each}}
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,9 +1,0 @@
-{
-  "development": {
-    "username": "wuzhe",
-    "password": "12345678qwe",
-    "database": "wuzhe",
-    "host": "156.224.26.154",
-    "dialect": "mysql"
-  }
-}

@@ -1,17 +1,48 @@
 {
-    "name": "wuzhe-plugin",
-    "AppVersion": "1.0.0",
-    "description": "武者文游",
-    "author": "名字",
-    "type": "module",
-    "dependencies": {
-        "compression": "^1.7.4",
-        "express": "^4.18.2",
-        "moment": "^2.29.4",
-        "mysql2": "^3.6.2",
-        "node-cron": "^3.0.3",
-        "qrcode": "^1.5.3",
-        "sequelize": "^6.35.2",
-        "sequelize-cli": "^6.6.2"
-    }
+  "name": "alemonjs",
+  "version": "1.0.0",
+  "description": "阿柠檬机器人",
+  "author": "ningmengchongshui",
+  "license": "GPL-2.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "afloat dev",
+    "image": "afloat image",
+    "build": "afloat build",
+    "format": "prettier --write .",
+    "pull:l": "find . -type d -name '.git' -execdir git pull --all \\;",
+    "pull:w": "cd application && for /d %i in (*) do (echo Updating %i && cd %i && git pull && cd ..) ",
+    "start": "pm2 startOrRestart pm2.config.cjs",
+    "stop": "pm2 stop pm2.config.cjs",
+    "restart": "pm2 restart pm2.config.cjs",
+    "delete": "pm2 delete pm2.config.cjs",
+    "logs": "pm2 logs",
+    "list": "pm2 list",
+    "startup": "pm2 startup",
+    "update": "pm2 update",
+    "monit": "pm2 monit",
+    "save": "pm2 save",
+    "kill": "pm2 kill"
+  },
+  "dependencies": {
+    "art-template": "^4.13.2",
+    "ioredis": "^5.3.2",
+    "lodash": "^4.17.21",
+    "mysql2": "^3.5.2",
+    "node-cron": "^3.0.3",
+    "sequelize": "^6.32.1"
+  },
+  "devDependencies": {
+    "afloat": "^1.1.13",
+    "alemonjs": "^1.2.0-rc.7",
+    "pm2": "^5.3.0",
+    "prettier": "^3.1.1"
+  },
+  "workspaces": [
+    "plugins/*"
+  ],
+  "engines": {
+    "node": ">=16.14.0"
+  }
 }

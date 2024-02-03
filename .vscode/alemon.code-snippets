@@ -1,0 +1,88 @@
+{
+  "Plugin TypeScript": {
+    "scope": "typescript",
+    "prefix": "plugin",
+    "body": [
+      "import { APlugin , AMessage } from 'alemonjs'",
+      "export class PluginName extends APlugin {",
+      "  constructor() {",
+      "    super({",
+      "      rule: [",
+      "        {",
+      "          reg: /滴滴/,",
+      "          fnc: 'post',",
+      "        }",
+      "      ]",
+      "    })",
+      "  }",
+      "  async post(e: AMessage){",
+      "    e.reply('哒哒')",
+      "    return",
+      "  }",
+      "}"
+    ],
+    "description": "plugin文件模板"
+  },
+  "Plugin JavaScript": {
+    "scope": "javascript",
+    "prefix": "plugin",
+    "body": [
+      "import { APlugin } from 'alemonjs'",
+      "export class PluginName extends APlugin {",
+      "  constructor() {",
+      "    super({",
+      "      rule: [",
+      "        {",
+      "          reg: /滴滴/,",
+      "          fnc: 'post',",
+      "        }",
+      "      ]",
+      "    })",
+      "  }",
+      "  async post(e){",
+      "    e.reply('哒哒')",
+      "    return",
+      "  }",
+      "}"
+    ],
+    "description": "plugin文件模板"
+  },
+  "App JavaScript Template": {
+    "scope": "javascript",
+    "prefix": "createApp",
+    "body": [
+      "import { createApp } from 'alemonjs'",
+      "createApp(import.meta.url).use({}).mount()"
+    ],
+    "description": "App JavaScript Template"
+  },
+  "App TypeScript Template": {
+    "scope": "typescript",
+    "prefix": "createApp",
+    "body": [
+      "import { createApp } from 'alemonjs'",
+      "createApp(import.meta.url).use({}).mount()"
+    ],
+    "description": "App TypeScript Template"
+  },
+  "Vue Template": {
+    "scope": "vue",
+    "prefix": "template",
+    "body": [
+      "<script>",
+      "  Vue.createApp({",
+      "    setup: () => ({",
+      "      data: BOT_DATA",
+      "    })",
+      "  }).mount('#app')",
+      "</script>",
+      "<template>",
+      "  <div>",
+      "  </div>",
+      "</template>",
+      "<style>",
+      "</style>"
+    ],
+    "description": "APP Template"
+  }
+}
